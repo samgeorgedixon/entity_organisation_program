@@ -1,2 +1,2 @@
-# entity_organisation_program
+# Entity Organisation Program
 Entity Organisation Program
