@@ -182,15 +182,12 @@ namespace eop {
 
 				if (cell[0] == 'T')
 					district.occupiableCells.push_back(true);
-				else if (cell[0] == 'F')
+				else {
 					district.occupiableCells.push_back(false);
-				else
-					district.occupiableCells.push_back(false);
+					continue;
+				}
 
 				int zone = std::stoi(cell.substr(2));
-
-				if (zone == -1)
-					continue;
 
 				while (district.zones.size() <= zone) {
 					district.zones.push_back({});
@@ -387,7 +384,7 @@ namespace eop {
 				int entityId = eopConfig.district.iterations[iteration].cells[(row * eopConfig.district.cols) + j];
 
 				if (entityId == -1)
-					data = "N/A";
+					data = ".";
 
 				else if (identifierIndexes.size() == 0)
 					data = entityId;
@@ -421,8 +418,21 @@ namespace eop {
 	int WriteXML_EOPConfig(std::string filePath, EOP_Config& eopConfig, std::string identifier) {
 		std::vector<std::string> lines = ReadFileLines(filePath);
 		std::vector<std::string> worksheetLines;
-		
+
 		std::vector<int> identifierIndexes;
+
+		// Backup XML File.
+		std::ofstream xmlFileBakup(filePath + ".bak");
+
+		if (xmlFileBakup.fail()) {
+			xmlFileBakup.close();
+			return 0;
+		}
+
+		std::ostream_iterator<std::string> backup_iterator(xmlFileBakup, "\n");
+		std::copy(lines.begin(), lines.end(), backup_iterator);
+		
+		xmlFileBakup.close();
 
 		identifier.erase(std::remove(identifier.begin(), identifier.end(), ' '), identifier.end());
 		std::stringstream ss(identifier);
