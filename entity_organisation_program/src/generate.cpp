@@ -8,9 +8,9 @@ namespace eop {
 	std::vector<int> m_collapsedCells;
 	std::vector<int> m_entityCount;
 
+	int m_totalEntities = 0;
 	int m_cellsToCollapse = 0;
 	int m_repeats;
-	int m_totalEntities = 0;
 
 	void ApplyGlobalEntityConditions(std::vector<bool>& cells) {
 		for (int i = 0; i < m_entities.entities.size(); i++) {
@@ -372,17 +372,17 @@ namespace eop {
 		PrintDistrictDebug(m_district, m_entities, cellsBase);
 		LOG("---\n");
 
-		int currentm_collapsedCellsCount = 0;
+		int currentCollapsedCellsCount = 0;
 		for (int i = 0; i < m_repeats; i++) {
 			cellsWorking = cellsBase;
 
-			int m_collapsedCellsCount = RunCollapses(cellsWorking);
+			int collapsedCellsCount = RunCollapses(cellsWorking);
 
-			if (m_collapsedCellsCount > currentm_collapsedCellsCount) {
+			if (collapsedCellsCount > currentCollapsedCellsCount) {
 				cellsBest = cellsWorking;
 
-				currentm_collapsedCellsCount = m_collapsedCellsCount;
-				if (m_collapsedCellsCount == m_cellsToCollapse)
+				currentCollapsedCellsCount = collapsedCellsCount;
+				if (collapsedCellsCount == m_cellsToCollapse || m_collapsedCells.size() >= m_totalEntities)
 					break;
 			}
 		}
@@ -402,7 +402,7 @@ namespace eop {
 			m_totalEntities += m_entities.entities[i].count;
 		}
 	}
-
+	
 	void ReduceIdentifiers() {
 
 	}
