@@ -8,8 +8,8 @@ namespace eop {
 	std::vector<int> m_collapsedCells;
 	std::vector<int> m_entityCount;
 
-	int m_totalEntities = 0;
-	int m_cellsToCollapse = 0;
+	int m_totalEntities;
+	int m_cellsToCollapse;
 	int m_repeats;
 
 	void ApplyGlobalEntityConditions(std::vector<bool>& cells) {
@@ -37,6 +37,8 @@ namespace eop {
 	}
 
 	void RemoveUnoccupiableCells(std::vector<bool>& cells) {
+		m_cellsToCollapse = m_district.rows * m_district.cols;
+
 		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
 			int k = 0;
 			for (int j = 0; j < m_entities.entities.size(); j++) {
@@ -357,8 +359,6 @@ namespace eop {
 	}
 
 	void RunIteration(int iteration) {
-		m_cellsToCollapse = m_district.rows * m_district.cols;
-
 		std::vector<bool> cellsBase((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 		std::vector<bool> cellsBest((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 		std::vector<bool> cellsWorking((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
@@ -382,7 +382,7 @@ namespace eop {
 				cellsBest = cellsWorking;
 
 				currentCollapsedCellsCount = collapsedCellsCount;
-				if (collapsedCellsCount == m_cellsToCollapse || m_collapsedCells.size() >= m_totalEntities)
+				if (collapsedCellsCount == m_cellsToCollapse || currentCollapsedCellsCount >= m_totalEntities)
 					break;
 			}
 		}
@@ -394,6 +394,7 @@ namespace eop {
 	}
 
 	void SetTotalEntities() {
+		m_totalEntities = 0;
 		for (int i = 0; i < m_entities.entities.size(); i++) {
 			if (m_entities.entities[i].count == 0) {
 				m_totalEntities = INT_MAX;
