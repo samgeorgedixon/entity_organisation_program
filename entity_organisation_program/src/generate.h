@@ -9,19 +9,6 @@
 
 - i = (y * cols) + x
 
-Identifier Iteration Count "The Amount of Iterations that Identifier can be used in."
-
-Iterations: "Repeats of the Program with Identifier Counts and Cell Carries."
-	Iteration:
-		Name
-
-		Cell Disable
-		Zone Disable
-
-		Cell Carry
-		Zone Carry
-	...
-
 */
 
 namespace eop {
@@ -43,11 +30,17 @@ namespace eop {
 		std::vector<int>	cells;
 	};
 
+	struct Zone {
+		std::vector<vec2> cells;
+
+		std::vector<std::vector<std::string>> zoneIdentifierConditions;
+	};
+
 	struct District {
 		int rows, cols;
 		
 		std::vector<bool> occupiableCells;
-		std::vector<std::vector<vec2>> zones;
+		std::vector<Zone> zones;
 
 		std::vector<Iteration> iterations;
 	};

@@ -24,9 +24,9 @@ namespace eop {
 			}
 			for (int j = 0; j < m_entities.entities[i].entityZoneConditions.size(); j++) {
 				int zone = m_entities.entities[i].entityZoneConditions[j];
-				for (int k = 0; k < m_district.zones[zone].size(); k++) {
-					int x = m_district.zones[zone][k].x;
-					int y = m_district.zones[zone][k].y;
+				for (int k = 0; k < m_district.zones[zone].cells.size(); k++) {
+					int x = m_district.zones[zone].cells[k].x;
+					int y = m_district.zones[zone].cells[k].y;
 					
 					int index = (y * m_district.cols) + x;
 
@@ -110,8 +110,8 @@ namespace eop {
 		int currentZone = -1;
 
 		for (int i = 0; i < m_district.zones.size(); i++) {
-			for (int j = 0; j < m_district.zones[i].size(); j++) {
-				if (cellIndex == (m_district.zones[i][j].y * m_district.cols) + m_district.zones[i][j].x) {
+			for (int j = 0; j < m_district.zones[i].cells.size(); j++) {
+				if (cellIndex == (m_district.zones[i].cells[j].y * m_district.cols) + m_district.zones[i].cells[j].x) {
 					currentZone = i;
 					break;
 				}
@@ -178,8 +178,8 @@ namespace eop {
 				if (zone < 0 || zone >= m_district.zones.size())
 					continue;
 
-				for (int j = 0; j < m_district.zones[zone].size(); j++) {
-					int index = (m_district.zones[zone][j].y * m_district.cols) + m_district.zones[zone][j].x;
+				for (int j = 0; j < m_district.zones[zone].cells.size(); j++) {
+					int index = (m_district.zones[zone].cells[j].y * m_district.cols) + m_district.zones[zone].cells[j].x;
 
 					bool already = false;
 					for (int k = 0; k < m_collapsedCells.size(); k++) {
@@ -327,8 +327,8 @@ namespace eop {
 		for (int i = 0; i < m_district.iterations[iteration].disabledZones.size(); i++) {
 			int zoneIndex = m_district.iterations[iteration].disabledZones[i];
 
-			for (int j = 0; j < m_district.zones[zoneIndex].size(); j++)
-				DisableCellCoordinate(cells, m_district.zones[m_district.iterations[iteration].disabledZones[i]][j]);
+			for (int j = 0; j < m_district.zones[zoneIndex].cells.size(); j++)
+				DisableCellCoordinate(cells, m_district.zones[m_district.iterations[iteration].disabledZones[i]].cells[j]);
 		}
 	}
 
@@ -353,8 +353,34 @@ namespace eop {
 		for (int i = 0; i < m_district.iterations[iteration].carriedZones.size(); i++) {
 			int zoneIndex = m_district.iterations[iteration].carriedZones[i];
 
-			for (int j = 0; j < m_district.zones[zoneIndex].size(); j++)
-				CarryCellCoordinate(cells, m_district.zones[m_district.iterations[iteration].carriedZones[i]][j], iteration);
+			for (int j = 0; j < m_district.zones[zoneIndex].cells.size(); j++)
+				CarryCellCoordinate(cells, m_district.zones[m_district.iterations[iteration].carriedZones[i]].cells[j], iteration);
+		}
+	}
+
+	void SetZoneIdentifierConditions(std::vector<bool>& cells) {
+		for (int i = 0; i < m_district.zones.size(); i++) {
+			std::vector<int> restrictedEntities;
+
+			for (int l = 0; l < m_entities.entities.size(); l++) {
+				for (int j = 0; j < m_district.zones[i].zoneIdentifierConditions.size(); j++) {
+					for (int k = 0; k < m_district.zones[i].zoneIdentifierConditions[j].size(); k++) {
+						std::string identifierCondition = m_district.zones[i].zoneIdentifierConditions[j][k];
+
+						if (identifierCondition == m_entities.entities[l].identifiersValues[j].value) {
+							restrictedEntities.push_back(l);
+						}
+					}
+				}
+			}
+
+			for (int l = 0; l < m_district.zones[i].cells.size(); l++) {
+				int cellIndex = ((m_district.zones[i].cells[l].y * m_district.cols) + m_district.zones[i].cells[l].x) * m_entities.entities.size();
+
+				for (int i = 0; i < restrictedEntities.size(); i++) {
+					cells[cellIndex + restrictedEntities[i]] = false;
+				}
+			}
 		}
 	}
 
@@ -368,6 +394,8 @@ namespace eop {
 
 		DisableCellsZones(cellsBase, iteration);
 		CarryCellsZones(cellsBase, iteration);
+
+		SetZoneIdentifierConditions(cellsBase);
 
 		PrintDistrictDebug(m_district, m_entities, cellsBase);
 		LOG("---\n");
@@ -404,10 +432,6 @@ namespace eop {
 		}
 	}
 	
-	void ReduceIdentifiers() {
-
-	}
-	
 	void GenerateDistrict(EOP_Config& eop_config, int repeats) {
 		m_district = eop_config.district;
 		m_entities = eop_config.entities;
@@ -419,8 +443,6 @@ namespace eop {
 
 		for (int i = 0; i < m_district.iterations.size(); i++) {
 			RunIteration(i);
-
-			ReduceIdentifiers();
 		}
 
 		eop_config.district = m_district;

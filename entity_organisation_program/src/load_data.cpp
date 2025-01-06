@@ -147,6 +147,7 @@ namespace eop {
 		Worksheet entitiesSheet;
 		Worksheet identifiersSheet;
 		Worksheet iterationsSheet;
+		Worksheet zonesSheet;
 
 		District district;
 		Entities entities;
@@ -160,6 +161,8 @@ namespace eop {
 				identifiersSheet = worksheets[i];
 			else if (worksheets[i].name.substr(0, 11) == "iterations")
 				iterationsSheet = worksheets[i];
+			else if (worksheets[i].name.substr(0, 6) == "zones")
+				zonesSheet = worksheets[i];
 		}
 
 		// Extract District Data.
@@ -192,7 +195,7 @@ namespace eop {
 				while (district.zones.size() <= zone) {
 					district.zones.push_back({});
 				}
-				district.zones[zone].push_back({ j, i });
+				district.zones[zone].cells.push_back({ j, i });
 			}
 		}
 
@@ -222,6 +225,23 @@ namespace eop {
 			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.table[i][4]);
 
 			district.iterations.push_back({ name, disabledCells, disabledZones, carriedCells, carriedZones });
+			i++;
+		}
+
+		// Extract Zone Data.
+		i = 3;
+		while (zonesSheet.table[i][0][0] != '-') {
+			std::vector<std::vector<std::string>> zoneIdentifierConditions;
+
+			int j = 2;
+			while (zonesSheet.table[2][j - 2][0] != '-') {
+				zoneIdentifierConditions.push_back(FindCommaValues(zonesSheet.table[i][j]));
+				j++;
+			}
+			int zone = std::stoi(zonesSheet.table[i][0]);
+
+			district.zones[zone].zoneIdentifierConditions = zoneIdentifierConditions;
+
 			i++;
 		}
 
