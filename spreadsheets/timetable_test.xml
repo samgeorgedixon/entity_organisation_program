@@ -10,7 +10,7 @@
   <Author>Samuel Dixon</Author>
   <LastAuthor>Samuel Dixon</LastAuthor>
   <Created>2024-12-26T09:16:08Z</Created>
-  <LastSaved>2025-01-01T10:06:00Z</LastSaved>
+  <LastSaved>2025-01-06T19:13:07Z</LastSaved>
   <Version>16.00</Version>
  </DocumentProperties>
  <CustomDocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
@@ -31,7 +31,7 @@
   <WindowTopX>32767</WindowTopX>
   <WindowTopY>32767</WindowTopY>
   <TabRatio>855</TabRatio>
-  <ActiveSheet>3</ActiveSheet>
+  <ActiveSheet>2</ActiveSheet>
   <ProtectStructure>False</ProtectStructure>
   <ProtectWindows>False</ProtectWindows>
  </ExcelWorkbook>
@@ -226,172 +226,6 @@
     <Format Style='border:none;background:#00B050'/>
    </Condition>
   </ConditionalFormatting>
- </Worksheet>
- <Worksheet ss:Name="zones">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="8" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
-   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="82.5"/>
-   <Column ss:AutoFitWidth="0" ss:Width="108.75" ss:Span="3"/>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="5" ss:StyleID="s62"><Data ss:Type="String">Zones</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeDown="1" ss:StyleID="s62"><Data ss:Type="String">ID</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s62"><Data ss:Type="String">Description</Data></Cell>
-    <Cell ss:MergeAcross="3" ss:StyleID="s62"><Data ss:Type="String">Entity Identifier Conditions</Data></Cell>
-    <Cell ss:StyleID="s64"/>
-    <Cell ss:StyleID="s64"/>
-    <Cell ss:StyleID="s64"/>
-    <Cell ss:StyleID="s64"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:Index="3" ss:StyleID="s62"><Data ss:Type="String">ID</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Physics</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Maths</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">-</Data></Cell>
-    <Cell ss:StyleID="s64"/>
-    <Cell ss:Index="10" ss:StyleID="s64"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Physics</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Physics</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">2</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Maths</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">3</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Maths</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s62"><Data ss:Type="String">-</Data></Cell>
-   </Row>
-  </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Unsynced/>
-   <Print>
-    <ValidPrinterInfo/>
-    <PaperSizeIndex>9</PaperSizeIndex>
-    <HorizontalResolution>1200</HorizontalResolution>
-    <VerticalResolution>1200</VerticalResolution>
-   </Print>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveRow>3</ActiveRow>
-     <ActiveCol>6</ActiveCol>
-    </Pane>
-   </Panes>
-   <ProtectObjects>False</ProtectObjects>
-   <ProtectScenarios>False</ProtectScenarios>
-  </WorksheetOptions>
- </Worksheet>
- <Worksheet ss:Name="iterations">
-  <Table ss:ExpandedColumnCount="5" ss:ExpandedRowCount="9" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
-   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="187.5" ss:Span="3"/>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="4" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Cells</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Zones</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Cells</Data></Cell>
-    <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Zones</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_1</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">(1, 1) (2, 2)</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_2</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">(0, 0) (0, 1)</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_3</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_4</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_5</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">(1, 1) (2, 2)</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_6</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s69"><Data ss:Type="String">-</Data></Cell>
-   </Row>
-  </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Unsynced/>
-   <TopRowVisible>1</TopRowVisible>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveRow>18</ActiveRow>
-     <ActiveCol>1</ActiveCol>
-     <RangeSelection>R18C2:R19C2</RangeSelection>
-    </Pane>
-   </Panes>
-   <ProtectObjects>False</ProtectObjects>
-   <ProtectScenarios>False</ProtectScenarios>
-  </WorksheetOptions>
  </Worksheet>
  <Worksheet ss:Name="entities">
   <Table ss:ExpandedColumnCount="12" ss:ExpandedRowCount="26" x:FullColumns="1"
@@ -715,12 +549,10 @@
     <HorizontalResolution>600</HorizontalResolution>
     <VerticalResolution>600</VerticalResolution>
    </Print>
-   <Selected/>
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>8</ActiveRow>
-     <ActiveCol>8</ActiveCol>
+     <ActiveCol>11</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>
@@ -782,11 +614,177 @@
     <HorizontalResolution>1200</HorizontalResolution>
     <VerticalResolution>1200</VerticalResolution>
    </Print>
+   <Selected/>
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>5</ActiveRow>
-     <ActiveCol>3</ActiveCol>
+     <ActiveCol>4</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="iterations">
+  <Table ss:ExpandedColumnCount="5" ss:ExpandedRowCount="9" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
+   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="187.5" ss:Span="3"/>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:MergeAcross="4" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Cells</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Zones</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Cells</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Zones</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_1</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">(1, 1) (2, 2)</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_2</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">(0, 0) (0, 1)</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_3</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_4</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_5</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">(1, 1) (2, 2)</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Period_6</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s69"><Data ss:Type="String">-</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Unsynced/>
+   <TopRowVisible>1</TopRowVisible>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>18</ActiveRow>
+     <ActiveCol>1</ActiveCol>
+     <RangeSelection>R18C2:R19C2</RangeSelection>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+ <Worksheet ss:Name="zones">
+  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="8" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
+   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="82.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="108.75" ss:Span="3"/>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:MergeAcross="5" ss:StyleID="s62"><Data ss:Type="String">Zones</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:MergeDown="1" ss:StyleID="s62"><Data ss:Type="String">ID</Data></Cell>
+    <Cell ss:MergeDown="1" ss:StyleID="s62"><Data ss:Type="String">Description</Data></Cell>
+    <Cell ss:MergeAcross="3" ss:StyleID="s62"><Data ss:Type="String">Entity Identifier Conditions</Data></Cell>
+    <Cell ss:StyleID="s64"/>
+    <Cell ss:StyleID="s64"/>
+    <Cell ss:StyleID="s64"/>
+    <Cell ss:StyleID="s64"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:Index="3" ss:StyleID="s62"><Data ss:Type="String">ID</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Physics</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Maths</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">-</Data></Cell>
+    <Cell ss:StyleID="s64"/>
+    <Cell ss:Index="10" ss:StyleID="s64"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Physics</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Physics</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">2</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Maths</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">3</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">Maths</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="Number">0</Data></Cell>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s62"><Data ss:Type="String">-</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Unsynced/>
+   <Print>
+    <ValidPrinterInfo/>
+    <PaperSizeIndex>9</PaperSizeIndex>
+    <HorizontalResolution>1200</HorizontalResolution>
+    <VerticalResolution>1200</VerticalResolution>
+   </Print>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>3</ActiveRow>
+     <ActiveCol>6</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>
