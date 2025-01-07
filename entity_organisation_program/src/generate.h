@@ -5,7 +5,7 @@
 
 - Entity Oranisation Program
 
-- Recursion Uses a lot of Stack so Set "Stack Reserve Size" to 50,000,000.
+- Recursion uses a lot of stack when using high row/column/entity counts so set "Stack Reserve Size" to 50,000,000.
 
 - i = (y * cols) + x
 
@@ -17,21 +17,25 @@ namespace eop {
 		int x, y;
 	};
 
-
 	struct Iteration {
 		std::string name;
 
-		std::vector<vec2>	disabledCells;
-		std::vector<int>	disabledZones;
+		std::vector<vec2>			disabledCells;
+		std::vector<int>			disabledZones;
+		std::vector<std::pair<std::string, std::string>> disabledIdentifiers;
 
-		std::vector<vec2>	carriedCells;
-		std::vector<int>	carriedZones;
-
-		std::vector<int>	cells;
+		std::vector<vec2>			carriedCells;
+		std::vector<int>			carriedZones;
+		std::vector<std::pair<std::string, std::string>> carriedIdentifiers;
+		
+		std::vector<std::string>	collapsedIdentifiers;
+		std::vector<int>			cells;
 	};
 
 	struct Zone {
 		std::vector<vec2> cells;
+
+		std::vector<std::string> collapsedIdentifiers;
 
 		std::vector<std::vector<std::string>> zoneIdentifierConditions;
 	};

@@ -95,10 +95,9 @@ namespace app {
 			configPathBufferCheck[i]	= 0;
 			identifierBuffer[i]			= 0;
 		}
-		identifierBuffer[0] = 'I';
-		identifierBuffer[1] = 'D';
+		identifierBuffer = "name";
 	}
-
+	
 	void Close() {
 		ImGuiEnd();
 

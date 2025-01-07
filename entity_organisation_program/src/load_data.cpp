@@ -100,6 +100,23 @@ namespace eop {
 		}
 		return zoneConditions;
 	}
+	std::vector<std::pair<std::string, std::string>> FindIdentifierPairs(std::string value) {
+		std::vector<std::pair<std::string, std::string>> collapsedIdentifiers;
+
+		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
+		value.erase(std::remove(value.begin(), value.end(), '.'), value.end());
+		std::stringstream ss(value);
+
+		std::string token;
+		while (getline(ss, token, ')')) {
+			std::string identifier = token.substr(1).substr(0, token.find(",") - 1);
+			std::string value = token.substr(1).substr(token.find(","));
+
+			collapsedIdentifiers.push_back({ identifier, value });
+		}
+		return collapsedIdentifiers;
+	}
+
 	std::vector<std::string> FindCommaValues(std::string value) {
 		std::vector<std::string> values;
 
@@ -183,14 +200,14 @@ namespace eop {
 				std::string cell = districtSheet.table[i + 1][j];
 				cell.erase(std::remove(cell.begin(), cell.end(), ' '), cell.end());
 
-				if (cell[0] == 'T')
-					district.occupiableCells.push_back(true);
-				else {
+				if (cell[0] == '.') {
 					district.occupiableCells.push_back(false);
 					continue;
+				} else {
+					district.occupiableCells.push_back(true);
 				}
 
-				int zone = std::stoi(cell.substr(2));
+				int zone = std::stoi(cell);
 
 				while (district.zones.size() <= zone) {
 					district.zones.push_back({});
@@ -220,11 +237,13 @@ namespace eop {
 
 			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.table[i][1]);
 			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.table[i][2]);
+			std::vector<std::pair<std::string, std::string>> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][3]);
 
-			std::vector<vec2>	carriedCells = FindCellConditions(iterationsSheet.table[i][3]);
-			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.table[i][4]);
+			std::vector<vec2>	carriedCells = FindCellConditions(iterationsSheet.table[i][4]);
+			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.table[i][5]);
+			std::vector<std::pair<std::string, std::string>> carriedIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][6]);
 
-			district.iterations.push_back({ name, disabledCells, disabledZones, carriedCells, carriedZones });
+			district.iterations.push_back({ name, disabledCells, disabledZones, disabledIdentifiers, carriedCells, carriedZones, carriedIdentifiers });
 			i++;
 		}
 
@@ -232,14 +251,15 @@ namespace eop {
 		i = 3;
 		while (zonesSheet.table[i][0][0] != '-') {
 			std::vector<std::vector<std::string>> zoneIdentifierConditions;
-
-			int j = 2;
-			while (zonesSheet.table[2][j - 2][0] != '-') {
+			
+			int j = 3;
+			while (zonesSheet.table[2][j - 3][0] != '-') {
 				zoneIdentifierConditions.push_back(FindCommaValues(zonesSheet.table[i][j]));
 				j++;
 			}
 			int zone = std::stoi(zonesSheet.table[i][0]);
 
+			district.zones[zone].collapsedIdentifiers = FindCommaValues(zonesSheet.table[i][2]);
 			district.zones[zone].zoneIdentifierConditions = zoneIdentifierConditions;
 
 			i++;
