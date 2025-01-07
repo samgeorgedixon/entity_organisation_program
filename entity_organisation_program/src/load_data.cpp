@@ -259,7 +259,7 @@ namespace eop {
 			}
 			int zone = std::stoi(zonesSheet.table[i][0]);
 
-			district.zones[zone].collapsedIdentifiers = FindCommaValues(zonesSheet.table[i][2]);
+			district.zones[zone].collapsedIdentifiers = FindIdentifierPairs(zonesSheet.table[i][2]);
 			district.zones[zone].zoneIdentifierConditions = zoneIdentifierConditions;
 
 			i++;
@@ -455,6 +455,50 @@ namespace eop {
 		}
 	}
 
+	void SetWorksheetZoneLines(EOP_Config& eopConfig, std::vector<int>& identifierIndexes, std::vector<std::string>& lines) {
+		// Find Worksheet or Create.
+		int worksheetIndex = -1;
+		int lineIndex = -1;
+		int lastLineIndex = -1;
+		bool copied = false;
+
+		std::vector<std::string> worksheetLines;
+
+		std::string name = "org-zones";
+
+		for (int i = 0; i < lines.size(); i++) {
+			if (CheckXMLTag(lines[i], "Worksheet")) {
+				worksheetIndex++;
+
+				XMLLine xmlLine = ParseXMLLine(lines[i]);
+				for (int j = 0; j < xmlLine.variables.size(); j++) {
+					if (xmlLine.variables[j].name == "ss:Name" && xmlLine.variables[j].value == name) {
+						lineIndex = i;
+						break;
+					}
+				}
+				i++;
+			}
+
+			if (worksheetIndex == 0) {
+				worksheetLines.push_back(lines[i]);
+			}
+			if (CheckXMLTag(lines[i], "/Worksheet"))
+				lastLineIndex = i;
+		}
+
+		if (lineIndex == -1) {
+			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + name + "\">");
+			for (int i = 0; i < worksheetLines.size(); i++) {
+				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetLines[i]);
+			}
+			lineIndex = lastLineIndex + 1;
+			copied = true;
+		}
+
+		// Write Zone Lines
+	}
+
 	int WriteXML_EOPConfig(std::string filePath, EOP_Config& eopConfig, std::string identifier) {
 		std::vector<std::string> lines = ReadFileLines(filePath);
 		std::vector<std::string> worksheetLines;
@@ -494,6 +538,8 @@ namespace eop {
 					identifierIndexes.push_back(i);
 			}
 		}
+
+		SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
 		
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++)
 			SetWorksheetIterationLines(eopConfig, identifierIndexes, lines, i);

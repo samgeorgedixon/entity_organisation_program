@@ -464,6 +464,54 @@ namespace eop {
 		}
 	}
 
+	void CollapseZoneIdentifiers(int iteration) {
+		for (int i = 0; i < m_district.zones.size(); i++) {
+			std::vector<int> collpasedIdentifierCellCounts(m_district.zones[i].collapsedIdentifiers.size(), 0);
+			int occupiedCellsCount = m_district.zones[i].cells.size();
+
+			for (int j = 0; j < m_district.zones[i].cells.size(); j++) {
+				int cellIndex = (m_district.zones[i].cells[j].y * m_district.cols) + m_district.zones[i].cells[j].x;
+				int entityIndex = m_district.iterations[iteration].cells[cellIndex];
+
+				if (entityIndex == -1) {
+					occupiedCellsCount--;
+					continue;
+				}
+
+				for (int k = 0; k < m_district.zones[i].collapsedIdentifiers.size(); k++) {
+					std::string identifier = m_district.zones[i].collapsedIdentifiers[k].first;
+					int	identifierIndex = -1;
+
+					for (int j = 0; j < m_entities.identifiers.size(); j++) {
+						if (identifier == m_entities.identifiers[j].name) {
+							identifierIndex = j;
+							break;
+						}
+					}
+					if (identifierIndex == -1) {
+						continue;
+					}
+
+					std::string entityValue = m_entities.entities[entityIndex].identifiersValues[identifierIndex].value;
+					std::string collapsedIdentifierValue = m_district.zones[i].collapsedIdentifiers[k].second;
+
+					if (entityValue == collapsedIdentifierValue) {
+						collpasedIdentifierCellCounts[k]++;
+					}
+				}
+			}
+
+			for (int j = 0; j < collpasedIdentifierCellCounts.size(); j++) {
+				if (collpasedIdentifierCellCounts[j] == occupiedCellsCount) {
+					// Drop entities identifier counts
+
+					m_district.iterations[iteration].collapsedIdentifiers.push_back(m_district.zones[i].collapsedIdentifiers[j].first);
+					break;
+				}
+			}
+		}
+	}
+
 	void RunIteration(int iteration) {
 		std::vector<bool> cellsBase((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 		std::vector<bool> cellsBest((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
@@ -480,6 +528,7 @@ namespace eop {
 		PrintDistrictDebug(m_district, m_entities, cellsBase);
 		LOG("---\n");
 
+		// Repeat Running Collapses
 		int currentCollapsedCellsCount = 0;
 		for (int i = 0; i < m_repeats; i++) {
 			cellsWorking = cellsBase;
@@ -496,6 +545,8 @@ namespace eop {
 		}
 
 		SetDistrictCells(cellsBest, iteration);
+
+		CollapseZoneIdentifiers(iteration);
 
 		PrintDistrictDebug(m_district, m_entities, cellsBest);
 		LOG("---\n");
