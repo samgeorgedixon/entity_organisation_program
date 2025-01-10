@@ -28,7 +28,7 @@ namespace eop {
 		std::vector<int>			carriedZones;
 		std::vector<std::pair<std::string, std::string>> carriedIdentifiers;
 		
-		std::vector<std::string>	collapsedIdentifiers;
+		std::vector<std::string>	zoneCollapsedIdentifiers;
 		std::vector<int>			cells;
 	};
 
@@ -37,7 +37,8 @@ namespace eop {
 
 		std::vector<std::pair<std::string, std::string>> collapsedIdentifiers;
 
-		std::vector<std::vector<std::string>> zoneIdentifierConditions;
+		std::vector<std::vector<std::string>> positiveZoneIdentifierConditions;
+		std::vector<std::vector<std::string>> negativeZoneIdentifierConditions;
 	};
 
 	struct District {

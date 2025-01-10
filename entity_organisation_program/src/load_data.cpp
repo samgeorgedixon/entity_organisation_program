@@ -2,6 +2,39 @@
 
 namespace eop {
 
+	std::vector<std::string> worksheetTemplateLines = {
+		"<Table ss:ExpandedColumnCount=\"13\" ss:ExpandedRowCount=\"9\" x:FullColumns=\"1\" x:FullRows=\"1\" ss:DefaultColumnWidth=\"66.75\" ss:DefaultRowHeight=\"30\">",
+		"<Row ss:AutoFitHeight=\"0\">",
+		"</Row>",
+		"</Table>",
+		"<WorksheetOptions xmlns=\"urn:schemas-microsoft-com:office:excel\">",
+		"<PageSetup>",
+		"<Header x:Margin=\"0.3\"/>",
+		"<Footer x:Margin=\"0.3\"/>",
+		"<PageMargins x:Bottom=\"0.75\" x:Left=\"0.7\" x:Right=\"0.7\" x:Top=\"0.75\"/>",
+		"</PageSetup>",
+		"<Unsynced/>",
+		"<Print>",
+		"<ValidPrinterInfo/>",
+		"<PaperSizeIndex>9</PaperSizeIndex>",
+		"<HorizontalResolution>600</HorizontalResolution>",
+		"<VerticalResolution>600</VerticalResolution>",
+		"</Print>",
+		"<Zoom>115</Zoom>",
+		"<Selected/>",
+		"<Panes>",
+		"<Pane>",
+		"<Number>3</Number>",
+		"<ActiveRow>3</ActiveRow>",
+		"<ActiveCol>5</ActiveCol>",
+		"</Pane>",
+		"</Panes>",
+		"<ProtectObjects>False</ProtectObjects>",
+		"<ProtectScenarios>False</ProtectScenarios>",
+		"</WorksheetOptions>",
+		"</Worksheet>"
+	};
+	
 	std::vector<std::string> TokeniseXMLLine(std::string line) {
 		line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
 
@@ -248,19 +281,24 @@ namespace eop {
 		}
 
 		// Extract Zone Data.
-		i = 3;
+		i = 4;
 		while (zonesSheet.table[i][0][0] != '-') {
-			std::vector<std::vector<std::string>> zoneIdentifierConditions;
+			std::vector<std::vector<std::string>> positiveZoneIdentifierConditions;
+			std::vector<std::vector<std::string>> negativeZoneIdentifierConditions;
 			
-			int j = 3;
-			while (zonesSheet.table[2][j - 3][0] != '-') {
-				zoneIdentifierConditions.push_back(FindCommaValues(zonesSheet.table[i][j]));
+			int j = 0;
+			int index = 3;
+			while (zonesSheet.table[2][j][0] != '-') {
+				positiveZoneIdentifierConditions.push_back(FindCommaValues(zonesSheet.table[i][index]));
+				negativeZoneIdentifierConditions.push_back(FindCommaValues(zonesSheet.table[i][index + 1]));
 				j++;
+				index += 2;
 			}
 			int zone = std::stoi(zonesSheet.table[i][0]);
 
 			district.zones[zone].collapsedIdentifiers = FindIdentifierPairs(zonesSheet.table[i][2]);
-			district.zones[zone].zoneIdentifierConditions = zoneIdentifierConditions;
+			district.zones[zone].positiveZoneIdentifierConditions = positiveZoneIdentifierConditions;
+			district.zones[zone].negativeZoneIdentifierConditions = negativeZoneIdentifierConditions;
 
 			i++;
 		}
@@ -351,8 +389,6 @@ namespace eop {
 		int lastLineIndex = -1;
 		bool copied = false;
 
-		std::vector<std::string> worksheetLines;
-
 		std::string iterationName = "org-" + eopConfig.district.iterations[iteration].name;
 
 		for (int i = 0; i < lines.size(); i++) {
@@ -369,17 +405,14 @@ namespace eop {
 				i++;
 			}
 
-			if (worksheetIndex == 0) {
-				worksheetLines.push_back(lines[i]);
-			}
 			if (CheckXMLTag(lines[i], "/Worksheet"))
 				lastLineIndex = i;
 		}
-
+		
 		if (lineIndex == -1) {
 			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + iterationName + "\">");
-			for (int i = 0; i < worksheetLines.size(); i++) {
-				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetLines[i]);
+			for (int i = 0; i < worksheetTemplateLines.size(); i++) {
+				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetTemplateLines[i]);
 			}
 			lineIndex = lastLineIndex + 1;
 			copied = true;
@@ -462,8 +495,6 @@ namespace eop {
 		int lastLineIndex = -1;
 		bool copied = false;
 
-		std::vector<std::string> worksheetLines;
-
 		std::string name = "org-zones";
 
 		for (int i = 0; i < lines.size(); i++) {
@@ -479,24 +510,87 @@ namespace eop {
 				}
 				i++;
 			}
-
-			if (worksheetIndex == 0) {
-				worksheetLines.push_back(lines[i]);
-			}
 			if (CheckXMLTag(lines[i], "/Worksheet"))
 				lastLineIndex = i;
 		}
 
 		if (lineIndex == -1) {
 			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + name + "\">");
-			for (int i = 0; i < worksheetLines.size(); i++) {
-				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetLines[i]);
+			for (int i = 0; i < worksheetTemplateLines.size(); i++) {
+				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetTemplateLines[i]);
 			}
 			lineIndex = lastLineIndex + 1;
 			copied = true;
 		}
 
+		// Set Zone Table
+		std::vector<std::vector<std::string>> zoneTable;
+
+		zoneTable.push_back({ "Organised Zones" });
+		zoneTable.push_back({ "ID", "Description", "Collapsed Identifiers" });
+
+		std::vector<std::string> iterationsRow = { "", "" };
+
+		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
+			iterationsRow.push_back(eopConfig.district.iterations[i].name);
+		}
+		zoneTable.push_back(iterationsRow);
+
+		for (int i = 0; i < eopConfig.district.zones.size(); i++) {
+			std::vector<std::string> zoneRow = { std::to_string(i), "" };
+
+			for (int j = 0; j < eopConfig.district.iterations.size(); j++) {
+				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size()) {
+					continue;
+				}
+				zoneRow.push_back(eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i]);
+			}
+			zoneTable.push_back(zoneRow);
+		}
+
 		// Write Zone Lines
+		int row = 0;
+		for (int i = lineIndex + 1; i < lines.size(); i++) {
+			if (CheckXMLTag(lines[i], "/Table") && row < zoneTable.size()) {
+				lines.insert(lines.begin() + i, "<Row ss:AutoFitHeight=\"0\">");
+				lines.insert(lines.begin() + i + 1, "</Row>");
+			}
+
+			if (!CheckXMLTag(lines[i], "Row"))
+				continue;
+
+			if (row >= zoneTable.size()) {
+				if (copied) {
+					while (!CheckXMLTag(lines[i], "/Table")) {
+						lines.erase(lines.begin() + i);
+					}
+				}
+				break;
+			}
+
+			i += 1;
+			for (int j = 0; j < zoneTable[row].size(); j++) {
+				std::string data = zoneTable[row][j];
+
+				if (CheckXMLTag(lines[i], "Cell")) {
+					std::vector<std::string> splitLine = SplitXMLMiddle(lines[i], "Cell");
+					lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + data + "</Data>" + splitLine[2];
+				}
+				else if (CheckXMLTag(lines[i], "/Row")) {
+					lines.insert(lines.begin() + i, "<Cell><Data ss:Type=\"String\">" + data + "</Data></Cell>");
+				}
+
+				if (j >= zoneTable[row].size() - 1 && copied) {
+					i++;
+					while (!CheckXMLTag(lines[i], "/Row")) {
+						lines.erase(lines.begin() + i);
+					}
+				}
+				else
+					i++;
+			}
+			row++;
+		}
 	}
 
 	int WriteXML_EOPConfig(std::string filePath, EOP_Config& eopConfig, std::string identifier) {
@@ -538,8 +632,8 @@ namespace eop {
 					identifierIndexes.push_back(i);
 			}
 		}
-
-		SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
+		
+		//SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
 		
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++)
 			SetWorksheetIterationLines(eopConfig, identifierIndexes, lines, i);
