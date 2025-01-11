@@ -1,46 +1,11 @@
 #include "load_data.h"
 
 namespace eop {
-
-	std::vector<std::string> worksheetTemplateLines = {
-		"<Table ss:ExpandedColumnCount=\"13\" ss:ExpandedRowCount=\"9\" x:FullColumns=\"1\" x:FullRows=\"1\" ss:DefaultColumnWidth=\"66.75\" ss:DefaultRowHeight=\"30\">",
-		"<Row ss:AutoFitHeight=\"0\">",
-		"</Row>",
-		"</Table>",
-		"<WorksheetOptions xmlns=\"urn:schemas-microsoft-com:office:excel\">",
-		"<PageSetup>",
-		"<Header x:Margin=\"0.3\"/>",
-		"<Footer x:Margin=\"0.3\"/>",
-		"<PageMargins x:Bottom=\"0.75\" x:Left=\"0.7\" x:Right=\"0.7\" x:Top=\"0.75\"/>",
-		"</PageSetup>",
-		"<Unsynced/>",
-		"<Print>",
-		"<ValidPrinterInfo/>",
-		"<PaperSizeIndex>9</PaperSizeIndex>",
-		"<HorizontalResolution>600</HorizontalResolution>",
-		"<VerticalResolution>600</VerticalResolution>",
-		"</Print>",
-		"<Zoom>115</Zoom>",
-		"<Selected/>",
-		"<Panes>",
-		"<Pane>",
-		"<Number>3</Number>",
-		"<ActiveRow>3</ActiveRow>",
-		"<ActiveCol>5</ActiveCol>",
-		"</Pane>",
-		"</Panes>",
-		"<ProtectObjects>False</ProtectObjects>",
-		"<ProtectScenarios>False</ProtectScenarios>",
-		"</WorksheetOptions>",
-		"</Worksheet>"
-	};
 	
 	std::vector<std::string> TokeniseXMLLine(std::string line) {
-		line.erase(line.begin(), std::find_if(line.begin(), line.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
-
 		if (line[0] != '<')
 			return {};
-
+		
 		line = line.substr(1);
 		line = line.substr(0, line.size() - 1);
 
@@ -296,6 +261,7 @@ namespace eop {
 			}
 			int zone = std::stoi(zonesSheet.table[i][0]);
 
+			district.zones[zone].name = zonesSheet.table[i][1];
 			district.zones[zone].collapsedIdentifiers = FindIdentifierPairs(zonesSheet.table[i][2]);
 			district.zones[zone].positiveZoneIdentifierConditions = positiveZoneIdentifierConditions;
 			district.zones[zone].negativeZoneIdentifierConditions = negativeZoneIdentifierConditions;
@@ -382,14 +348,43 @@ namespace eop {
 		return GenerateEOP_Config(worksheets);
 	}
 
-	void SetWorksheetIterationLines(EOP_Config& eopConfig, std::vector<int>& identifierIndexes, std::vector<std::string>& lines, int iteration) {
-		// Find Worksheet or Create.
+	std::vector<std::string> worksheetTemplateLines = {
+		"<Table ss:ExpandedColumnCount=\"13\" ss:ExpandedRowCount=\"9\" x:FullColumns=\"1\" x:FullRows=\"1\" ss:DefaultColumnWidth=\"66.75\" ss:DefaultRowHeight=\"30\">",
+		"<Row ss:AutoFitHeight=\"0\">",
+		"</Row>",
+		"</Table>",
+		"<WorksheetOptions xmlns=\"urn:schemas-microsoft-com:office:excel\">",
+		"<PageSetup>",
+		"<Header x:Margin=\"0.3\"/>",
+		"<Footer x:Margin=\"0.3\"/>",
+		"<PageMargins x:Bottom=\"0.75\" x:Left=\"0.7\" x:Right=\"0.7\" x:Top=\"0.75\"/>",
+		"</PageSetup>",
+		"<Unsynced/>",
+		"<Print>",
+		"<ValidPrinterInfo/>",
+		"<PaperSizeIndex>9</PaperSizeIndex>",
+		"<HorizontalResolution>600</HorizontalResolution>",
+		"<VerticalResolution>600</VerticalResolution>",
+		"</Print>",
+		"<Zoom>100</Zoom>",
+		"<Selected/>",
+		"<Panes>",
+		"<Pane>",
+		"<Number>3</Number>",
+		"<ActiveRow>3</ActiveRow>",
+		"<ActiveCol>5</ActiveCol>",
+		"</Pane>",
+		"</Panes>",
+		"<ProtectObjects>False</ProtectObjects>",
+		"<ProtectScenarios>False</ProtectScenarios>",
+		"</WorksheetOptions>",
+		"</Worksheet>"
+	};
+
+	int FindCreateWorksheet(std::vector<std::string>& lines, std::string worksheetName) {
 		int worksheetIndex = -1;
 		int lineIndex = -1;
 		int lastLineIndex = -1;
-		bool copied = false;
-
-		std::string iterationName = "org-" + eopConfig.district.iterations[iteration].name;
 
 		for (int i = 0; i < lines.size(); i++) {
 			if (CheckXMLTag(lines[i], "Worksheet")) {
@@ -397,7 +392,7 @@ namespace eop {
 
 				XMLLine xmlLine = ParseXMLLine(lines[i]);
 				for (int j = 0; j < xmlLine.variables.size(); j++) {
-					if (xmlLine.variables[j].name == "ss:Name" && xmlLine.variables[j].value == iterationName) {
+					if (xmlLine.variables[j].name == "ss:Name" && xmlLine.variables[j].value == worksheetName) {
 						lineIndex = i;
 						break;
 					}
@@ -408,53 +403,75 @@ namespace eop {
 			if (CheckXMLTag(lines[i], "/Worksheet"))
 				lastLineIndex = i;
 		}
-		
+
 		if (lineIndex == -1) {
-			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + iterationName + "\">");
+			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + worksheetName + "\">");
 			for (int i = 0; i < worksheetTemplateLines.size(); i++) {
 				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetTemplateLines[i]);
 			}
 			lineIndex = lastLineIndex + 1;
-			copied = true;
 		}
+		return lineIndex;
+	}
 
-		// Add & Modify Cells & Rows.
+	void PrintTableToWorksheetLines(std::vector<std::string>& lines, int lineIndex, std::string title, std::vector<std::vector<std::string>>& table) {
 		int row = -1;
 
 		for (int i = lineIndex + 1; i < lines.size(); i++) {
-			if (CheckXMLTag(lines[i], "/Table") && row < eopConfig.district.rows) {
+			if (CheckXMLTag(lines[i], "/Table") && row < table.size()) {
 				lines.insert(lines.begin() + i, "<Row ss:AutoFitHeight=\"0\">");
 				lines.insert(lines.begin() + i + 1, "</Row>");
 			}
 
-			if (!CheckXMLTag(lines[i], "Row"))
+			if (!CheckXMLTag(lines[i], "Row")) {
 				continue;
-
-			if (row >= eopConfig.district.rows) {
-				if (copied) {
-					while (!CheckXMLTag(lines[i], "/Table")) {
-						lines.erase(lines.begin() + i);
-					}
-				}
+			}
+			if (row >= table.size() && row != -1) {
 				break;
 			}
 
 			if (row == -1) {
 				i++;
-				if (!CheckXMLTag(lines[i], "Cell"))
+				if (!CheckXMLTag(SplitXMLMiddle(lines[i], "Cell")[0], "Cell"))
 					lines.insert(lines.begin() + i, "<Cell><Data ss:Type=\"String\"></Data></Cell>");
-				
+
 				std::vector<std::string> splitLine = SplitXMLMiddle(lines[i], "Cell");
-				lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + "Organisation of Entities: " + iterationName.substr(4) + "</Data>" + splitLine[2];
+				lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + title + "</Data>" + splitLine[2];
 
 				row++; continue;
 			}
 
 			i += 1;
-			for (int j = 0; j < eopConfig.district.cols; j++) {
+			for (int j = 0; j < table[row].size(); j++) {
+				std::string data = table[row][j];
+
+				if (CheckXMLTag(lines[i], "Cell")) {
+					std::vector<std::string> splitLine = SplitXMLMiddle(lines[i], "Cell");
+					lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + data + "</Data>" + splitLine[2];
+				}
+				else if (CheckXMLTag(lines[i], "/Row")) {
+					lines.insert(lines.begin() + i, "<Cell><Data ss:Type=\"String\">" + data + "</Data></Cell>");
+				}
+				i++;
+			}
+			row++;
+		}
+	}
+
+	void SetWorksheetIterationLines(EOP_Config& eopConfig, std::vector<int>& identifierIndexes, std::vector<std::string>& lines, int iteration) {
+		std::string iterationName = "org-" + eopConfig.district.iterations[iteration].name;
+
+		int lineIndex = FindCreateWorksheet(lines, iterationName);
+
+		std::vector<std::string>				defaultRow(eopConfig.district.cols, "");
+		std::vector<std::vector<std::string>>	table(eopConfig.district.rows, defaultRow);
+
+		// Set Table
+		for (int i = 0; i < table.size(); i++) {
+			for (int j = 0; j < table[i].size(); j++) {
 				std::string data = "";
 
-				int entityId = eopConfig.district.iterations[iteration].cells[(row * eopConfig.district.cols) + j];
+				int entityId = eopConfig.district.iterations[iteration].cells[(i * eopConfig.district.cols) + j];
 
 				if (entityId == -1)
 					data = ".";
@@ -466,131 +483,42 @@ namespace eop {
 						data += eopConfig.entities.entities[entityId].identifiersValues[identifierIndexes[k]].value + ", ";
 					data += eopConfig.entities.entities[entityId].identifiersValues[identifierIndexes[identifierIndexes.size() - 1]].value;
 				}
-
-				if (CheckXMLTag(lines[i], "Cell")) {
-					std::vector<std::string> splitLine = SplitXMLMiddle(lines[i], "Cell");
-					lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + data + "</Data>" + splitLine[2];
-				}
-				else if (CheckXMLTag(lines[i], "/Row")) {
-					lines.insert(lines.begin() + i, "<Cell><Data ss:Type=\"String\">" + data + "</Data></Cell>");
-				}
-
-				if (j >= eopConfig.district.cols - 1 && copied) {
-					i++;
-					while (!CheckXMLTag(lines[i], "/Row")) {
-						lines.erase(lines.begin() + i);
-					}
-				}
-				else
-					i++;
+				table[i][j] = data;
 			}
-			row++;
 		}
+
+		PrintTableToWorksheetLines(lines, lineIndex, "Organisation of Entities: " + iterationName.substr(4), table);
 	}
 
 	void SetWorksheetZoneLines(EOP_Config& eopConfig, std::vector<int>& identifierIndexes, std::vector<std::string>& lines) {
-		// Find Worksheet or Create.
-		int worksheetIndex = -1;
-		int lineIndex = -1;
-		int lastLineIndex = -1;
-		bool copied = false;
+		std::string worksheetName = "org-zones";
+		
+		int lineIndex = FindCreateWorksheet(lines, worksheetName);
+		std::vector<std::vector<std::string>> table;
 
-		std::string name = "org-zones";
+		// Set Table
+		table.push_back({ "ID", "Description", "Collapsed Identifiers" });
 
-		for (int i = 0; i < lines.size(); i++) {
-			if (CheckXMLTag(lines[i], "Worksheet")) {
-				worksheetIndex++;
-
-				XMLLine xmlLine = ParseXMLLine(lines[i]);
-				for (int j = 0; j < xmlLine.variables.size(); j++) {
-					if (xmlLine.variables[j].name == "ss:Name" && xmlLine.variables[j].value == name) {
-						lineIndex = i;
-						break;
-					}
-				}
-				i++;
-			}
-			if (CheckXMLTag(lines[i], "/Worksheet"))
-				lastLineIndex = i;
-		}
-
-		if (lineIndex == -1) {
-			lines.insert(lines.begin() + lastLineIndex + 1, "<Worksheet ss:Name=\"" + name + "\">");
-			for (int i = 0; i < worksheetTemplateLines.size(); i++) {
-				lines.insert(lines.begin() + lastLineIndex + 2 + i, worksheetTemplateLines[i]);
-			}
-			lineIndex = lastLineIndex + 1;
-			copied = true;
-		}
-
-		// Set Zone Table
-		std::vector<std::vector<std::string>> zoneTable;
-
-		zoneTable.push_back({ "Organised Zones" });
-		zoneTable.push_back({ "ID", "Description", "Collapsed Identifiers" });
-
-		std::vector<std::string> iterationsRow = { "", "" };
+		std::vector<std::string> iterationsRow;
 
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
 			iterationsRow.push_back(eopConfig.district.iterations[i].name);
 		}
-		zoneTable.push_back(iterationsRow);
-
+		table.push_back(iterationsRow);
+		
 		for (int i = 0; i < eopConfig.district.zones.size(); i++) {
-			std::vector<std::string> zoneRow = { std::to_string(i), "" };
+			std::vector<std::string> row = { std::to_string(i), eopConfig.district.zones[i].name };
 
 			for (int j = 0; j < eopConfig.district.iterations.size(); j++) {
 				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size()) {
 					continue;
 				}
-				zoneRow.push_back(eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i]);
+				row.push_back(eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i]);
 			}
-			zoneTable.push_back(zoneRow);
+			table.push_back(row);
 		}
 
-		// Write Zone Lines
-		int row = 0;
-		for (int i = lineIndex + 1; i < lines.size(); i++) {
-			if (CheckXMLTag(lines[i], "/Table") && row < zoneTable.size()) {
-				lines.insert(lines.begin() + i, "<Row ss:AutoFitHeight=\"0\">");
-				lines.insert(lines.begin() + i + 1, "</Row>");
-			}
-
-			if (!CheckXMLTag(lines[i], "Row"))
-				continue;
-
-			if (row >= zoneTable.size()) {
-				if (copied) {
-					while (!CheckXMLTag(lines[i], "/Table")) {
-						lines.erase(lines.begin() + i);
-					}
-				}
-				break;
-			}
-
-			i += 1;
-			for (int j = 0; j < zoneTable[row].size(); j++) {
-				std::string data = zoneTable[row][j];
-
-				if (CheckXMLTag(lines[i], "Cell")) {
-					std::vector<std::string> splitLine = SplitXMLMiddle(lines[i], "Cell");
-					lines[i] = splitLine[0] + "<Data ss:Type=\"String\">" + data + "</Data>" + splitLine[2];
-				}
-				else if (CheckXMLTag(lines[i], "/Row")) {
-					lines.insert(lines.begin() + i, "<Cell><Data ss:Type=\"String\">" + data + "</Data></Cell>");
-				}
-
-				if (j >= zoneTable[row].size() - 1 && copied) {
-					i++;
-					while (!CheckXMLTag(lines[i], "/Row")) {
-						lines.erase(lines.begin() + i);
-					}
-				}
-				else
-					i++;
-			}
-			row++;
-		}
+		PrintTableToWorksheetLines(lines, lineIndex, "Organised Zones", table);
 	}
 
 	int WriteXML_EOPConfig(std::string filePath, EOP_Config& eopConfig, std::string identifier) {
@@ -633,7 +561,7 @@ namespace eop {
 			}
 		}
 		
-		//SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
+		SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
 		
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++)
 			SetWorksheetIterationLines(eopConfig, identifierIndexes, lines, i);

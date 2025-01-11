@@ -48,13 +48,10 @@ namespace eop {
 				if (cells[(i * m_entities.entities.size()) + j] == false)
 					k++;
 			}
-
-			if (k == m_entities.entities.size())
-				m_cellsToCollapse--;
-			else if (!m_district.occupiableCells[i]) {
+			
+			if (!m_district.occupiableCells[i]) {
 				for (int j = 0; j < m_entities.entities.size(); j++)
 					cells[(i * m_entities.entities.size()) + j] = false;
-				m_cellsToCollapse--;
 			}
 		}
 	}
@@ -553,6 +550,20 @@ namespace eop {
 			}
 		}
 	}
+
+	void FindCellsToCollapse(std::vector<bool>& cells) {
+		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
+			bool occupied = false;
+			for (int j = 0; j < m_entities.entities.size(); j++) {
+				if (cells[(i * m_entities.entities.size()) + j]) {
+					occupied = true; break;
+				}
+			}
+			if (!occupied) {
+				m_cellsToCollapse--;
+			}
+		}
+	}
 	
 	void RunIteration(int iteration) {
 		std::vector<bool> cellsBase((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
@@ -566,6 +577,8 @@ namespace eop {
 		CarryCellsZonesIdentifiers(cellsBase, iteration);
 
 		SetZoneIdentifierConditions(cellsBase);
+		
+		FindCellsToCollapse(cellsBase);
 
 		PrintDistrictDebug(m_district, m_entities, cellsBase);
 		LOG("---\n");

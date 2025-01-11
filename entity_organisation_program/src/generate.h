@@ -33,6 +33,8 @@ namespace eop {
 	};
 
 	struct Zone {
+		std::string name;
+
 		std::vector<vec2> cells;
 
 		std::vector<std::pair<std::string, std::string>> collapsedIdentifiers;

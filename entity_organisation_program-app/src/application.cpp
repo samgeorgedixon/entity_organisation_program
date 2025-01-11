@@ -95,7 +95,10 @@ namespace app {
 			configPathBufferCheck[i]	= 0;
 			identifierBuffer[i]			= 0;
 		}
-		identifierBuffer = "name";
+		identifierBuffer[0] = 'n';
+		identifierBuffer[1] = 'a';
+		identifierBuffer[2] = 'm';
+		identifierBuffer[3] = 'e';
 	}
 	
 	void Close() {
@@ -239,6 +242,7 @@ namespace app {
 		ImGui::Spacing();
 		if (ImGui::Button("Run") && runConfigFinished) {
 			outputLine0 = "Running...";
+			outputLine1 = "";
 
 			std::thread runConfig(RunConfig);
 
