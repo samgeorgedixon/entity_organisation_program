@@ -66,7 +66,11 @@ namespace app {
 
 		eop::GenerateDistrict(eop_config, repeatsSlider);
 
-		eop::PrintDistrictIteration(eop_config, 0, 1);
+		for (int i = 0; i < eop_config.district.iterations.size(); i++) {
+			eop::PrintDistrictIteration(eop_config, i, 1);
+			LOG("---\n");
+		}
+
 		int outRes = eop::WriteXML_EOPConfig(configPathBuffer, eop_config, identifierBuffer);
 
 		if (!outRes) {

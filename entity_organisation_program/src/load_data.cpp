@@ -272,6 +272,9 @@ namespace eop {
 		// Extract Entity Data.
 		i = 4;
 		while (entitiesSheet.table[i][0][0] != '-') {
+			if (entitiesSheet.table[i][0][0] == '.') {
+				i++; continue;
+			}
 			Entity entity;
 
 			entity.count = std::stoi(entitiesSheet.table[i][0]);
@@ -497,7 +500,7 @@ namespace eop {
 		std::vector<std::vector<std::string>> table;
 
 		// Set Table
-		table.push_back({ "ID", "Description", "Collapsed Identifiers" });
+		table.push_back({ "ID", "Name", "Collapsed Identifiers" });
 
 		std::vector<std::string> iterationsRow;
 

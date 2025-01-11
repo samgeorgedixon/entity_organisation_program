@@ -5,11 +5,12 @@ namespace eop {
 	District m_district;
 	Entities m_entities;
 
+	std::vector<Entity> m_originalEntities;
+
 	std::vector<int> m_collapsedCells;
 	std::vector<int> m_entityCount;
 
 	std::vector<std::vector<int>> entityIdentifierCounts;
-	std::vector<std::vector<int>> ;
 
 	int m_totalEntities;
 	int m_cellsToCollapse;
@@ -126,7 +127,7 @@ namespace eop {
 
 			for (int j = 0; j < m_entities.entities.size(); j++) {
 				for (int k = 0; k < m_entities.entities[entity].identifiersValues[i].conditions.size(); k++) {
-					if (m_entities.entities[j].identifiersValues[i].value == m_entities.entities[entity].identifiersValues[i].conditions[k]) {
+					if (m_originalEntities[j].identifiersValues[i].value == m_entities.entities[entity].identifiersValues[i].conditions[k]) {
 						entityConditions.push_back(j);
 					}
 				}
@@ -356,7 +357,7 @@ namespace eop {
 			std::string value = m_district.iterations[iteration].disabledIdentifiers[i].second;
 
 			for (int j = 0; j < m_entities.entities.size(); j++) {
-				std::string entityValue = m_entities.entities[j].identifiersValues[identifierIndex].value;
+				std::string entityValue = m_originalEntities[j].identifiersValues[identifierIndex].value;
 				if (value == entityValue) {
 					disabledEntities.push_back(j);
 				}
@@ -419,7 +420,7 @@ namespace eop {
 			std::string value = m_district.iterations[iteration].carriedIdentifiers[i].second;
 
 			for (int j = 0; j < m_entities.entities.size(); j++) {
-				std::string entityValue = m_entities.entities[j].identifiersValues[identifierIndex].value;
+				std::string entityValue = m_originalEntities[j].identifiersValues[identifierIndex].value;
 				if (value == entityValue) {
 					carriedEntities.push_back(j);
 				}
@@ -447,7 +448,7 @@ namespace eop {
 					for (int k = 0; k < m_district.zones[i].negativeZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = m_district.zones[i].negativeZoneIdentifierConditions[j][k];
 
-						if (identifierCondition == m_entities.entities[l].identifiersValues[j].value) {
+						if (identifierCondition == m_originalEntities[l].identifiersValues[j].value) {
 							restrictedEntities.push_back(l);
 							break;
 						}
@@ -635,12 +636,14 @@ namespace eop {
 	void GenerateDistrict(EOP_Config& eop_config, int repeats) {
 		m_district = eop_config.district;
 		m_entities = eop_config.entities;
+
+		m_originalEntities = eop_config.entities.entities;
 		m_repeats = repeats;
+
+		srand((unsigned)time(NULL)); // Random Seed
 
 		SetTotalEntities();
 		SetEntityIdentifierCounts();
-
-		srand((unsigned)time(NULL)); // Random Seed.
 
 		for (int i = 0; i < m_district.iterations.size(); i++) {
 			RunIteration(i);
