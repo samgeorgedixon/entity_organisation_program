@@ -208,8 +208,14 @@ namespace app {
 			std::string filePath = OpenFileDialog("XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
 
 			if (filePath.size() <= bufferSize) {
-				for (int i = 0; i < filePath.size(); i++)
+				int i = 0;
+				for (i; i < filePath.size(); i++) {
 					configPathBuffer[i] = filePath[i];
+				}
+				while (i < bufferSize) {
+					configPathBuffer[i] = 0;
+					i++;
+				}
 			}
 		}
 
