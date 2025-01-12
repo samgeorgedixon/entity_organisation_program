@@ -217,6 +217,9 @@ namespace eop {
 		// Extract Identifiers Data.
 		int i = 2;
 		while (identifiersSheet.table[i][0][0] != '-') {
+			if (identifiersSheet.table[i][0][0] == '.') {
+				i++; continue;
+			}
 			std::string name = identifiersSheet.table[i][0];
 
 			int iterationCount = std::stoi(FindCommaValues(identifiersSheet.table[i][1])[0]);
@@ -231,23 +234,36 @@ namespace eop {
 		// Extract Iterations Data.
 		i = 2;
 		while (iterationsSheet.table[i][0][0] != '-') {
+			if (iterationsSheet.table[i][0][0] == '.') {
+				i++; continue;
+			}
 			std::string name = iterationsSheet.table[i][0];
 
-			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.table[i][1]);
-			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.table[i][2]);
-			std::vector<std::pair<std::string, std::string>> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][3]);
+			bool hiden = false;
+			if (iterationsSheet.table[i][1] == "T")
+				hiden = true;
 
-			std::vector<vec2>	carriedCells = FindCellConditions(iterationsSheet.table[i][4]);
-			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.table[i][5]);
-			std::vector<std::pair<std::string, std::string>> carriedIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][6]);
+			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.table[i][2]);
+			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.table[i][3]);
+			std::vector<std::pair<std::string, std::string>> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][4]);
 
-			district.iterations.push_back({ name, disabledCells, disabledZones, disabledIdentifiers, carriedCells, carriedZones, carriedIdentifiers });
+			std::vector<vec2>	carriedCells = FindCellConditions(iterationsSheet.table[i][5]);
+			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.table[i][6]);
+			std::vector<std::pair<std::string, std::string>> carriedIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][7]);
+
+			std::vector<std::pair<std::string, std::string>> disabledZoneCollapseIdentifiers = FindIdentifierPairs(iterationsSheet.table[i][8]);
+
+			district.iterations.push_back
+				({ name, hiden, disabledCells, disabledZones, disabledIdentifiers, carriedCells, carriedZones, carriedIdentifiers, disabledZoneCollapseIdentifiers });
 			i++;
 		}
 
 		// Extract Zone Data.
 		i = 4;
 		while (zonesSheet.table[i][0][0] != '-') {
+			if (zonesSheet.table[i][0][0] == '.') {
+				i++; continue;
+			}
 			std::vector<std::vector<std::string>> positiveZoneIdentifierConditions;
 			std::vector<std::vector<std::string>> negativeZoneIdentifierConditions;
 			
@@ -325,7 +341,7 @@ namespace eop {
 					i++;
 
 					for (i; i < lines.size(); i++) {
-						if (CheckXMLTag(lines[i], "Cell")) {
+						if (CheckXMLTag(SplitXMLMiddle(lines[i], "Cell")[0], "Cell")) {
 							row.push_back(FindXMLMiddle(FindXMLMiddle(lines[i], "Cell"), "Data"));
 						}
 						else if (CheckXMLTag(lines[i], "Row")) {
@@ -352,8 +368,9 @@ namespace eop {
 	}
 
 	std::vector<std::string> worksheetTemplateLines = {
-		"<Table ss:ExpandedColumnCount=\"13\" ss:ExpandedRowCount=\"9\" x:FullColumns=\"1\" x:FullRows=\"1\" ss:DefaultColumnWidth=\"66.75\" ss:DefaultRowHeight=\"30\">",
+		"<Table ss:DefaultColumnWidth=\"66.75\" ss:DefaultRowHeight=\"30\">",
 		"<Row ss:AutoFitHeight=\"0\">",
+		"<Cell><Data ss:Type=\"String\"></Data></Cell>",
 		"</Row>",
 		"</Table>",
 		"<WorksheetOptions xmlns=\"urn:schemas-microsoft-com:office:excel\">",
@@ -566,8 +583,12 @@ namespace eop {
 		
 		SetWorksheetZoneLines(eopConfig, identifierIndexes, lines);
 		
-		for (int i = 0; i < eopConfig.district.iterations.size(); i++)
+		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
+			if (eopConfig.district.iterations[i].hide) {
+				continue;
+			}
 			SetWorksheetIterationLines(eopConfig, identifierIndexes, lines, i);
+		}
 
 		// Write to XML File.
 		std::ofstream xmlFile(filePath);

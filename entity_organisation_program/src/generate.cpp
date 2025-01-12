@@ -8,7 +8,9 @@ namespace eop {
 	std::vector<Entity> m_originalEntities;
 
 	std::vector<int> m_collapsedCells;
+	std::vector<int> m_defaultCollapsedCells;
 	std::vector<int> m_entityCount;
+	std::vector<int> m_defaultEntityCount;
 
 	std::vector<std::vector<int>> entityIdentifierCounts;
 
@@ -44,12 +46,6 @@ namespace eop {
 		m_cellsToCollapse = m_district.rows * m_district.cols;
 
 		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
-			int k = 0;
-			for (int j = 0; j < m_entities.entities.size(); j++) {
-				if (cells[(i * m_entities.entities.size()) + j] == false)
-					k++;
-			}
-			
 			if (!m_district.occupiableCells[i]) {
 				for (int j = 0; j < m_entities.entities.size(); j++)
 					cells[(i * m_entities.entities.size()) + j] = false;
@@ -57,10 +53,40 @@ namespace eop {
 		}
 	}
 
-	void SetEntityCounts() {
+	void DropEntityCount(std::vector<bool>& cells, int entity) {
+		if (m_entityCount[entity] > 1) {
+			m_entityCount[entity]--;
+		}
+		else if (m_entityCount[entity] == 1) {
+			m_entityCount[entity]--;
+			for (int i = 0; i < (m_district.rows * m_district.cols); i++) {
+				bool isCollapsed = false;
+				for (int j = 0; j < m_collapsedCells.size(); j++) {
+					if (m_collapsedCells[j] == i)
+						isCollapsed = true;
+				}
+				if (isCollapsed)
+					continue;
+				cells[(i * m_entities.entities.size()) + entity] = false;
+			}
+		}
+	}
+
+	void SetEntityCounts(std::vector<bool>& cells) {
 		m_entityCount.clear();
 		for (int i = 0; i < m_entities.entities.size(); i++) {
 			m_entityCount.push_back(m_entities.entities[i].count);
+		}
+		for (int i = 0; i < m_collapsedCells.size(); i++) {
+			int entityId = -1;
+			for (int j = 0; j < m_entities.entities.size(); j++) {
+				if (cells[(m_collapsedCells[i] * m_entities.entities.size()) + j]) {
+					entityId = j;
+				}
+			}
+			if (entityId != -1) {
+				DropEntityCount(cells, entityId);
+			}
 		}
 	}
 
@@ -91,22 +117,7 @@ namespace eop {
 			cells[(cellIndex * m_entities.entities.size()) + i] = false;
 		}
 		
-		if (m_entityCount[entity] > 1)
-			m_entityCount[entity]--;
-		
-		else if (m_entityCount[entity] == 1) {
-			m_entityCount[entity]--;
-			for (int i = 0; i < (m_district.rows * m_district.cols); i++) {
-				bool isCollapsed = false;
-				for (int j = 0; j < m_collapsedCells.size(); j++) {
-					if (m_collapsedCells[j] == i)
-						isCollapsed = true;
-				}
-				if (isCollapsed)
-					continue;
-				cells[(i * m_entities.entities.size()) + entity] = false;
-			}
-		}
+		DropEntityCount(cells, entity);
 		
 		int currentZone = -1;
 
@@ -244,10 +255,11 @@ namespace eop {
 		CollapseCell(cells, cellIndex / m_entities.entities.size());
 		return false;
 	}
-
+	
 	int RunCollapses(std::vector<bool>& cells) {
-		SetEntityCounts();
-		m_collapsedCells.clear();
+		m_collapsedCells = m_defaultCollapsedCells;
+		//m_entityCount = m_defaultEntityCount;
+		SetEntityCounts(cells);
 
 		bool done = false;
 		while (true) {
@@ -376,6 +388,8 @@ namespace eop {
 		for (int j = 0; j < m_entities.entities.size(); j++) {
 			if (j != m_district.iterations[iteration - 1].cells[cellIndex]) {
 				cells[(cellIndex * m_entities.entities.size()) + j] = false;
+			} else {
+				cells[(cellIndex * m_entities.entities.size()) + j] = true;
 			}
 		}
 
@@ -442,6 +456,7 @@ namespace eop {
 	void SetZoneIdentifierConditions(std::vector<bool>& cells) {
 		for (int i = 0; i < m_district.zones.size(); i++) {
 			std::vector<int> restrictedEntities;
+			std::vector<int> allowedEntities;
 			
 			for (int l = 0; l < m_entities.entities.size(); l++) {
 				for (int j = 0; j < m_district.zones[i].positiveZoneIdentifierConditions.size(); j++) {
@@ -459,7 +474,19 @@ namespace eop {
 						if (identifierCondition != m_entities.entities[l].identifiersValues[j].value) {
 							restrictedEntities.push_back(l);
 							break;
+						} else if (identifierCondition == m_entities.entities[l].identifiersValues[j].value) {
+							allowedEntities.push_back(l);
+							break;
 						}
+					}
+				}
+			}
+
+			for (int l = 0; l < allowedEntities.size(); l++) {
+				for (int j = 0; j < restrictedEntities.size(); j++) {
+					if (allowedEntities[l] == restrictedEntities[j]) {
+						restrictedEntities.erase(restrictedEntities.begin() + j);
+						j--;
 					}
 				}
 			}
@@ -467,8 +494,8 @@ namespace eop {
 			for (int l = 0; l < m_district.zones[i].cells.size(); l++) {
 				int cellIndex = ((m_district.zones[i].cells[l].y * m_district.cols) + m_district.zones[i].cells[l].x) * m_entities.entities.size();
 
-				for (int i = 0; i < restrictedEntities.size(); i++) {
-					cells[cellIndex + restrictedEntities[i]] = false;
+				for (int j = 0; j < restrictedEntities.size(); j++) {
+					cells[cellIndex + restrictedEntities[j]] = false;
 				}
 			}
 		}
@@ -523,8 +550,22 @@ namespace eop {
 				}
 			}
 
+			std::string zoneCollapsedIdentifier = "";
+
 			for (int j = 0; j < collpasedIdentifierCellCounts.size(); j++) {
 				if (collpasedIdentifierCellCounts[j] == occupiedCellsCount) {
+					bool disabled = false;
+
+					for (int k = 0; k < m_district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
+						if (m_district.zones[i].collapsedIdentifiers[j].first == m_district.iterations[iteration].disabledZoneCollapseIdentifiers[k].first
+							&& m_district.zones[i].collapsedIdentifiers[j].second == m_district.iterations[iteration].disabledZoneCollapseIdentifiers[k].second) {
+							disabled = true;
+						}
+					}
+					if (disabled) {
+						continue;
+					}
+
 					int identifierIndex = -1;
 
 					for (int k = 0; k < m_entities.identifiers.size(); k++) {
@@ -544,11 +585,11 @@ namespace eop {
 							m_entities.entities[entityIndexes[k]].identifiersValues[identifierIndex].value = ".";
 						}
 					}
-
-					m_district.iterations[iteration].zoneCollapsedIdentifiers.push_back(m_district.zones[i].collapsedIdentifiers[j].first);
+					zoneCollapsedIdentifier = m_district.zones[i].collapsedIdentifiers[j].first + ", " + m_district.zones[i].collapsedIdentifiers[j].second;
 					break;
 				}
 			}
+			m_district.iterations[iteration].zoneCollapsedIdentifiers.push_back(zoneCollapsedIdentifier);
 		}
 	}
 
@@ -571,6 +612,9 @@ namespace eop {
 		std::vector<bool> cellsBest((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 		std::vector<bool> cellsWorking((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 
+		m_collapsedCells.clear();
+		//SetEntityCounts();
+
 		ApplyGlobalEntityConditions(cellsBase);
 		RemoveUnoccupiableCells(cellsBase);
 
@@ -581,8 +625,11 @@ namespace eop {
 		
 		FindCellsToCollapse(cellsBase);
 
-		PrintDistrictDebug(m_district, m_entities, cellsBase);
-		LOG("---\n");
+		//m_defaultEntityCount = m_entityCount;
+		m_defaultCollapsedCells = m_collapsedCells;
+
+		//PrintDistrictDebug(m_district, m_entities, cellsBase);
+		//LOG("---\n");
 
 		// Repeat Running Collapses
 		int currentCollapsedCellsCount = 0;
@@ -604,7 +651,7 @@ namespace eop {
 
 		CollapseZoneIdentifiers(iteration);
 
-		PrintDistrictDebug(m_district, m_entities, cellsBest);
+		//PrintDistrictDebug(m_district, m_entities, cellsBest);
 		LOG("---\n");
 	}
 

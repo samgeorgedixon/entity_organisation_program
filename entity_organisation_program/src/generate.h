@@ -20,6 +20,8 @@ namespace eop {
 	struct Iteration {
 		std::string name;
 
+		bool hide;
+
 		std::vector<vec2>			disabledCells;
 		std::vector<int>			disabledZones;
 		std::vector<std::pair<std::string, std::string>> disabledIdentifiers;
@@ -27,6 +29,8 @@ namespace eop {
 		std::vector<vec2>			carriedCells;
 		std::vector<int>			carriedZones;
 		std::vector<std::pair<std::string, std::string>> carriedIdentifiers;
+
+		std::vector<std::pair<std::string, std::string>> disabledZoneCollapseIdentifiers;
 		
 		std::vector<std::string>	zoneCollapsedIdentifiers;
 		std::vector<int>			cells;
