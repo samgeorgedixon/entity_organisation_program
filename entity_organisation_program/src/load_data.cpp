@@ -522,6 +522,9 @@ namespace eop {
 		std::vector<std::string> iterationsRow;
 
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
+			if (eopConfig.district.iterations[i].hide) {
+				continue;
+			}
 			iterationsRow.push_back(eopConfig.district.iterations[i].name);
 		}
 		table.push_back(iterationsRow);
@@ -530,7 +533,7 @@ namespace eop {
 			std::vector<std::string> row = { std::to_string(i), eopConfig.district.zones[i].name };
 
 			for (int j = 0; j < eopConfig.district.iterations.size(); j++) {
-				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size()) {
+				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size() || eopConfig.district.iterations[j].hide) {
 					continue;
 				}
 				row.push_back(eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i]);

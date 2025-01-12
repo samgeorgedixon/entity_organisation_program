@@ -97,7 +97,7 @@ namespace eop {
 		return low + (rand() % high);
 	}
 	
-	void CollapseCell(std::vector<bool>& cells, int cellIndex) {
+	void CollapseCell(std::vector<bool>& cells, int iteration, int cellIndex) {
 		m_collapsedCells.push_back(cellIndex);
 		
 		std::vector<int> possibleCollapses;
@@ -118,7 +118,8 @@ namespace eop {
 		}
 		
 		DropEntityCount(cells, entity);
-		
+
+		// Get Current Zone
 		int currentZone = -1;
 
 		for (int i = 0; i < m_district.zones.size(); i++) {
@@ -128,10 +129,106 @@ namespace eop {
 					break;
 				}
 			}
-			if (currentZone != -1)
+			if (currentZone != -1) {
 				break;
+			}
 		}
 		
+		if (currentZone != -1) {
+			bool zoneCollapsed = false;
+
+			for (int i = 0; i < m_district.zones[currentZone].cells.size(); i++) {
+				int zoneCellIndex = (m_district.zones[currentZone].cells[i].y * m_district.cols) + m_district.zones[currentZone].cells[i].x;
+
+				if (cellIndex == zoneCellIndex) {
+					continue;
+				}
+
+				int count = 0;
+				for (int j = 0; j < m_entities.entities.size(); j++) {
+					if (cells[(zoneCellIndex * m_entities.entities.size()) + j] == true) {
+						count++;
+					}
+				}
+				if (count == 1) {
+					zoneCollapsed = true;
+					break;
+				}
+			}
+
+			if (!zoneCollapsed) {
+				// Collapse Zone
+				for (int i = 0; i < m_district.zones[currentZone].collapsedIdentifiers.size(); i++) {
+					std::string identifier = m_district.zones[currentZone].collapsedIdentifiers[i].first;
+					int	identifierIndex = -1;
+
+					for (int j = 0; j < m_entities.identifiers.size(); j++) {
+						if (identifier == m_entities.identifiers[j].name) {
+							identifierIndex = j;
+							break;
+						}
+					}
+					if (identifierIndex == -1) {
+						continue;
+					}
+
+					std::string entityValue = m_entities.entities[entity].identifiersValues[identifierIndex].value;
+					std::string collapsedIdentifierValue = m_district.zones[currentZone].collapsedIdentifiers[i].second;
+
+					if (entityValue == collapsedIdentifierValue) {
+						bool disabled = false;
+
+						for (int k = 0; k < m_district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
+							if (m_district.zones[currentZone].collapsedIdentifiers[i].first == m_district.iterations[iteration].disabledZoneCollapseIdentifiers[k].first
+								&& m_district.zones[currentZone].collapsedIdentifiers[i].second == m_district.iterations[iteration].disabledZoneCollapseIdentifiers[k].second) {
+								disabled = true;
+							}
+						}
+						if (disabled) {
+							continue;
+						}
+
+						int identifierIndex = -1;
+
+						for (int k = 0; k < m_entities.identifiers.size(); k++) {
+							if (m_entities.identifiers[k].name == m_district.zones[currentZone].collapsedIdentifiers[i].first) {
+								identifierIndex = k;
+								break;
+							}
+						}
+
+						if (entityIdentifierCounts[entity][identifierIndex] == 0) {
+							continue;
+						}
+
+						std::vector<int> restrictedEntities;
+
+						for (int j = 0; j < m_entities.entities.size(); j++) {
+							std::string identifierValue = m_district.zones[currentZone].collapsedIdentifiers[i].second;
+							std::string entityIdentifierValue = m_entities.entities[j].identifiersValues[identifierIndex].value;
+
+							if (entityIdentifierValue != identifierValue) {
+								restrictedEntities.push_back(j);
+							}
+						}
+
+						for (int j = 0; j < m_district.zones[currentZone].cells.size(); j++) {
+							int zoneCellIndex = (m_district.zones[currentZone].cells[j].y * m_district.cols) + m_district.zones[currentZone].cells[j].x;
+
+							if (cellIndex == zoneCellIndex) {
+								continue;
+							}
+
+							for (int k = 0; k < restrictedEntities.size(); k++) {
+								cells[(zoneCellIndex * m_entities.entities.size()) + restrictedEntities[k]] = false;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+
 		// Check Cells.
 		for (int i = 0; i < m_entities.entities[entity].identifiersValues.size(); i++) {
 			std::vector<int> entityConditions;
@@ -177,11 +274,12 @@ namespace eop {
 						count++;
 				}
 				if (count == 1)
-					CollapseCell(cells, cellIndex + relMovX + relMovY);
+					CollapseCell(cells, iteration, cellIndex + relMovX + relMovY);
 			}
 
-			if (currentZone == -1)
+			if (currentZone == -1) {
 				continue;
+			}
 
 			// Zone Conditions.
 			for (int l = 0; l < m_entities.identifiers[i].relitiveZoneConditions.size(); l++) {
@@ -215,13 +313,13 @@ namespace eop {
 							count++;
 					}
 					if (count == 1)
-						CollapseCell(cells, index);
+						CollapseCell(cells, iteration, index);
 				}
 			}
 		}
 	}
 
-	bool Collapse(std::vector<bool>& cells) {
+	bool Collapse(std::vector<bool>& cells, int iteration) {
 		// Find Lowest Entropy Seat.
 		int minSuperposCount = INT_MAX;
 		int cellIndex;
@@ -252,18 +350,18 @@ namespace eop {
 		}
 		//int cellIndex = cellIndexes[RandomIntRange(0, cellIndexes.size())];
 		
-		CollapseCell(cells, cellIndex / m_entities.entities.size());
+		CollapseCell(cells, iteration, cellIndex / m_entities.entities.size());
 		return false;
 	}
 	
-	int RunCollapses(std::vector<bool>& cells) {
+	int RunCollapses(std::vector<bool>& cells, int iteration) {
 		m_collapsedCells = m_defaultCollapsedCells;
 		//m_entityCount = m_defaultEntityCount;
 		SetEntityCounts(cells);
 
 		bool done = false;
 		while (true) {
-			done = Collapse(cells);
+			done = Collapse(cells, iteration);
 
 			if (done)
 				break;
@@ -393,7 +491,7 @@ namespace eop {
 			}
 		}
 
-		CollapseCell(cells, cellIndex);
+		CollapseCell(cells, iteration, cellIndex);
 	}
 
 	void CarryCellsZonesIdentifiers(std::vector<bool>& cells, int iteration) {
@@ -552,6 +650,11 @@ namespace eop {
 
 			std::string zoneCollapsedIdentifier = "";
 
+			if (occupiedCellsCount == 0) {
+				m_district.iterations[iteration].zoneCollapsedIdentifiers[i] = zoneCollapsedIdentifier;
+				continue;
+			}
+
 			for (int j = 0; j < collpasedIdentifierCellCounts.size(); j++) {
 				if (collpasedIdentifierCellCounts[j] == occupiedCellsCount) {
 					bool disabled = false;
@@ -589,7 +692,7 @@ namespace eop {
 					break;
 				}
 			}
-			m_district.iterations[iteration].zoneCollapsedIdentifiers.push_back(zoneCollapsedIdentifier);
+			m_district.iterations[iteration].zoneCollapsedIdentifiers[i] = zoneCollapsedIdentifier;
 		}
 	}
 
@@ -613,8 +716,8 @@ namespace eop {
 		std::vector<bool> cellsWorking((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 
 		m_collapsedCells.clear();
-		//SetEntityCounts();
-
+		m_district.iterations[iteration].zoneCollapsedIdentifiers = std::vector<std::string>(m_district.zones.size(), "");
+		
 		ApplyGlobalEntityConditions(cellsBase);
 		RemoveUnoccupiableCells(cellsBase);
 
@@ -636,7 +739,7 @@ namespace eop {
 		for (int i = 0; i < m_repeats; i++) {
 			cellsWorking = cellsBase;
 
-			int collapsedCellsCount = RunCollapses(cellsWorking);
+			int collapsedCellsCount = RunCollapses(cellsWorking, iteration);
 
 			if (collapsedCellsCount > currentCollapsedCellsCount) {
 				cellsBest = cellsWorking;

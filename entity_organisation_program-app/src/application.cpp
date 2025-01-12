@@ -150,19 +150,8 @@ namespace app {
 	}
 
 	void Menu() {
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				ImGui::MenuItem("New");
-				ImGui::MenuItem("Open");
-
-				ImGui::Separator();
-
-				ImGui::MenuItem("Preferences");
-
-				ImGui::Separator();
-
+		if (ImGui::BeginMenuBar()) {
+			if (ImGui::BeginMenu("File")) {
 				if (ImGui::MenuItem("Exit", NULL, false, finished != true))
 					finished = true;
 				ImGui::EndMenu();
