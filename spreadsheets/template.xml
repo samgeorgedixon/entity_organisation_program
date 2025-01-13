@@ -877,24 +877,29 @@
   </WorksheetOptions>
  </Worksheet>
  <Worksheet ss:Name="iterations">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="12" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="12" x:FullColumns="1"
    x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
    <Column ss:AutoFitWidth="0" ss:Width="108.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="161.25" ss:Span="5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="82.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="161.25" ss:Span="6"/>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="6" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
+    <Cell ss:MergeAcross="8" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Hide</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Cells</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Zones</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Identifiers</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Cells</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Zones</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Identifiers</Data></Cell>
+    <Cell ss:StyleID="s69"><Data ss:Type="String">Disable Zone Collapse Identifiers</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"><Data ss:Type="String">first_iteration</Data></Cell>
+    <Cell ss:StyleID="s67"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
@@ -904,6 +909,7 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"><Data ss:Type="String">-</Data></Cell>
+    <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s65"/>
@@ -912,6 +918,7 @@
     <Cell ss:StyleID="s65"/>
    </Row>
    <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s65"/>
@@ -924,15 +931,6 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s67"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s67"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s67"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s65"/>
@@ -944,6 +942,18 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s67"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s67"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s67"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s65"/>
@@ -952,6 +962,7 @@
     <Cell ss:StyleID="s65"/>
    </Row>
    <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s65"/>
     <Cell ss:StyleID="s67"/>
@@ -964,15 +975,6 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s67"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s67"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s67"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s65"/>
     <Cell ss:StyleID="s67"/>
@@ -983,6 +985,18 @@
     <Cell ss:StyleID="s67"/>
    </Row>
    <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s67"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s67"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s67"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s67"/>
     <Cell ss:StyleID="s67"/>
@@ -1003,7 +1017,8 @@
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveCol>7</ActiveCol>
+     <ActiveRow>6</ActiveRow>
+     <ActiveCol>2</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>

@@ -16,7 +16,7 @@ Otherwise use premake to build from source.
 
 ## Usage
 
-This is based around "Excel XML files" that have an aray of sheets that you can edit with all the necessary configuration and then run it through the program which outputs into the same file.
+This is based around "Excel XML Spreadsheet Files" that have an aray of sheets that you can edit with all the necessary configuration and then run it through the program which outputs into another file.
 
 It is recomended to start from a template.
 

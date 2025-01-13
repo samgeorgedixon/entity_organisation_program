@@ -582,9 +582,10 @@ namespace eop {
 
 		// Write to XML File.
 		filePath = filePath.substr(0, filePath.size() - 4) + "-org.xml";
-		LOG(filePath << "\n");
-		std::ofstream xmlFile(filePath);
 
+		LOG("Output File: " << filePath << "\n");
+
+		std::ofstream xmlFile(filePath);
 		if (xmlFile.fail()) {
 			xmlFile.close();
 			return 0;

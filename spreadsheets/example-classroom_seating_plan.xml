@@ -92,11 +92,6 @@
    <Font ss:FontName="Aptos Narrow" x:Family="Swiss" ss:Size="12"
     ss:Color="#000000"/>
   </Style>
-  <Style ss:ID="s75">
-   <Alignment ss:Vertical="Center"/>
-   <Font ss:FontName="Aptos Narrow" x:Family="Swiss" ss:Size="11"
-    ss:Color="#000000" ss:Bold="1"/>
-  </Style>
  </Styles>
  <Names>
   <NamedRange ss:Name="_xleta.ROW" ss:RefersTo="=#NAME?" ss:Hidden="1"/>
@@ -1250,42 +1245,50 @@
   </WorksheetOptions>
  </Worksheet>
  <Worksheet ss:Name="iterations">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="12" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="12" x:FullColumns="1"
    x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
    <Column ss:AutoFitWidth="0" ss:Width="108.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="161.25" ss:Span="5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="82.5"/>
+   <Column ss:AutoFitWidth="0" ss:Width="161.25" ss:Span="6"/>
    <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="6" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
+    <Cell ss:MergeAcross="8" ss:StyleID="s62"><Data ss:Type="String">Iterations</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s62"><Data ss:Type="String">Name</Data></Cell>
+    <Cell ss:StyleID="s62"><Data ss:Type="String">Hide</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Cells</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Zones</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Disabled Identifiers</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Cells</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Zones</Data></Cell>
     <Cell ss:StyleID="s62"><Data ss:Type="String">Carried Identifiers</Data></Cell>
+    <Cell ss:StyleID="s71"><Data ss:Type="String">Disable Zone Collapse Identifiers</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"><Data ss:Type="String">seating_plan_maths</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">(class, english)</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"><Data ss:Type="String">seating_plan_english</Data></Cell>
+    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">(class, maths)</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
     <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
+    <Cell ss:StyleID="s65"><Data ss:Type="String">.</Data></Cell>
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s71"><Data ss:Type="String">-</Data></Cell>
+    <Cell ss:StyleID="s71"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s65"/>
@@ -1297,15 +1300,6 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"/>
-    <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s68"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s65"/>
@@ -1317,6 +1311,18 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"/>
+    <Cell ss:StyleID="s69"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s68"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s69"/>
+    <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s65"/>
@@ -1325,6 +1331,7 @@
     <Cell ss:StyleID="s65"/>
    </Row>
    <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s65"/>
     <Cell ss:StyleID="s68"/>
@@ -1337,15 +1344,6 @@
    </Row>
    <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s68"/>
-    <Cell ss:StyleID="s65"/>
-    <Cell ss:StyleID="s68"/>
-   </Row>
-   <Row ss:AutoFitHeight="0">
     <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s65"/>
     <Cell ss:StyleID="s68"/>
@@ -1356,6 +1354,18 @@
     <Cell ss:StyleID="s68"/>
    </Row>
    <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s69"/>
+    <Cell ss:StyleID="s69"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s68"/>
+    <Cell ss:StyleID="s65"/>
+    <Cell ss:StyleID="s68"/>
+   </Row>
+   <Row ss:AutoFitHeight="0">
+    <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s69"/>
     <Cell ss:StyleID="s68"/>
     <Cell ss:StyleID="s68"/>
@@ -1375,8 +1385,8 @@
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>2</ActiveRow>
-     <ActiveCol>3</ActiveCol>
+     <ActiveRow>5</ActiveRow>
+     <ActiveCol>7</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>
@@ -1601,221 +1611,6 @@
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>7</ActiveRow>
-     <ActiveCol>12</ActiveCol>
-    </Pane>
-   </Panes>
-   <ProtectObjects>False</ProtectObjects>
-   <ProtectScenarios>False</ProtectScenarios>
-  </WorksheetOptions>
- </Worksheet>
- <Worksheet ss:Name="org-zones">
-  <Table ss:ExpandedColumnCount="4" ss:ExpandedRowCount="9" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
-   <Column ss:Index="2" ss:AutoFitWidth="0" ss:Width="87.75"/>
-   <Column ss:AutoFitWidth="0" ss:Width="108.75" ss:Span="1"/>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="3" ss:StyleID="s71"><Data ss:Type="String">Organised Zones</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeDown="1" ss:StyleID="s71"><Data ss:Type="String">ID</Data></Cell>
-    <Cell ss:MergeDown="1" ss:StyleID="s71"><Data ss:Type="String">Name</Data></Cell>
-    <Cell ss:MergeAcross="1" ss:StyleID="s71"><Data ss:Type="String">Collapsed Identifiers</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:Index="3" ss:StyleID="s71"><Data ss:Type="String">seating_plan_maths</Data></Cell>
-    <Cell ss:StyleID="s71"><Data ss:Type="String">seating_plan_english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">0</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_front_left</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">1</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_front_right</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">2</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_middle_left</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">3</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_middle_right</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">4</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_back_left</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">5</Data></Cell>
-    <Cell ss:StyleID="s69"><Data ss:Type="String">row_back_right</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">class, english</Data></Cell>
-   </Row>
-  </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Unsynced/>
-   <Print>
-    <ValidPrinterInfo/>
-    <PaperSizeIndex>9</PaperSizeIndex>
-    <HorizontalResolution>600</HorizontalResolution>
-    <VerticalResolution>600</VerticalResolution>
-   </Print>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveCol>4</ActiveCol>
-    </Pane>
-   </Panes>
-   <ProtectObjects>False</ProtectObjects>
-   <ProtectScenarios>False</ProtectScenarios>
-  </WorksheetOptions>
- </Worksheet>
- <Worksheet ss:Name="org-seating_plan_maths">
-  <Table ss:ExpandedColumnCount="11" ss:ExpandedRowCount="4" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
-   <Column ss:AutoFitWidth="0" ss:Width="124.5" ss:Span="9"/>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="9" ss:StyleID="s71"><Data ss:Type="String">Organisation of Entities: seating_plan_maths</Data></Cell>
-    <Cell ss:StyleID="s75"/>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">William Hunt, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Niko Morris, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Esther Sido, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">James Shilton, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Caitlin Boyd, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Aarron Kelly, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Sophie Rayner, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Nancy Enyoazu, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Alex Sentance, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Madison Taylor, maths</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Lexi Green, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Samuel Dixon, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">James Calderon, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Brooke Layton, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Benjamin Finn, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Ruby Haigh, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Benjamin Hillary, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Spencer Rowe, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Stanley Hirst, maths</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Benedict Hobday, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Violet Hudson, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Katrina Petersone, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Matthew Homan, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Thomas Barrett, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">James Eilbeck, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Ava Lee, maths</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-  </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Unsynced/>
-   <Print>
-    <ValidPrinterInfo/>
-    <PaperSizeIndex>9</PaperSizeIndex>
-    <HorizontalResolution>600</HorizontalResolution>
-    <VerticalResolution>600</VerticalResolution>
-   </Print>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveRow>1</ActiveRow>
-     <ActiveCol>1</ActiveCol>
-    </Pane>
-   </Panes>
-   <ProtectObjects>False</ProtectObjects>
-   <ProtectScenarios>False</ProtectScenarios>
-  </WorksheetOptions>
- </Worksheet>
- <Worksheet ss:Name="org-seating_plan_english">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="4" x:FullColumns="1"
-   x:FullRows="1" ss:DefaultColumnWidth="66.75" ss:DefaultRowHeight="30">
-   <Column ss:AutoFitWidth="0" ss:Width="124.5" ss:Span="9"/>
-   <Row ss:AutoFitHeight="0">
-    <Cell ss:MergeAcross="9" ss:StyleID="s71"><Data ss:Type="String">Organisation of Entities: seating_plan_english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Aarron Kelly, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Eva Redican, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Bethany Greer, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Callum Foster, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Lewis Dacre, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Jayden Parsons, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">James Eilbeck, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Samuel Dixon, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Matthew Homan, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Alex Sentance, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Mariam Keita, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Niamh Teale, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Hugo Bird, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Cheryl Kanyimo, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">James Calderon, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Jayden Nasa-Mereni, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Ethan Durham, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Lexie Starkey, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Cassie Strachan, english</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="50.0625">
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Lucy Webster, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Patryk Rudnicki, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Ava Lee, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Jude Fitzsimons, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Caitlin Boyd, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Isabella Holmes, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">Elliott Long, english</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-    <Cell ss:StyleID="s68"><Data ss:Type="String">.</Data></Cell>
-   </Row>
-  </Table>
-  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
-   <PageSetup>
-    <Header x:Margin="0.3"/>
-    <Footer x:Margin="0.3"/>
-    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
-   </PageSetup>
-   <Unsynced/>
-   <Print>
-    <ValidPrinterInfo/>
-    <PaperSizeIndex>9</PaperSizeIndex>
-    <HorizontalResolution>600</HorizontalResolution>
-    <VerticalResolution>600</VerticalResolution>
-   </Print>
-   <Panes>
-    <Pane>
-     <Number>3</Number>
-     <ActiveRow>3</ActiveRow>
      <ActiveCol>9</ActiveCol>
     </Pane>
    </Panes>
