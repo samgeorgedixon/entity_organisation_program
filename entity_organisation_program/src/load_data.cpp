@@ -550,19 +550,6 @@ namespace eop {
 
 		std::vector<int> identifierIndexes;
 
-		// Backup XML File.
-		std::ofstream xmlFileBakup(filePath + ".bak");
-
-		if (xmlFileBakup.fail()) {
-			xmlFileBakup.close();
-			return 0;
-		}
-
-		std::ostream_iterator<std::string> backup_iterator(xmlFileBakup, "\n");
-		std::copy(lines.begin(), lines.end(), backup_iterator);
-		
-		xmlFileBakup.close();
-
 		identifier.erase(std::remove(identifier.begin(), identifier.end(), ' '), identifier.end());
 		std::stringstream ss(identifier);
 
@@ -594,6 +581,8 @@ namespace eop {
 		}
 
 		// Write to XML File.
+		filePath = filePath.substr(0, filePath.size() - 4) + "-org.xml";
+		LOG(filePath << "\n");
 		std::ofstream xmlFile(filePath);
 
 		if (xmlFile.fail()) {
