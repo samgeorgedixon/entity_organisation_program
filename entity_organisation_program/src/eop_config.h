@@ -1,16 +1,6 @@
 #pragma once
 #include "core.h"
 
-/*
-
-- Entity Oranisation Program
-
-- Recursion uses a lot of stack when using high row/column/entity counts so set "Stack Reserve Size" to 50,000,000.
-
-- i = (y * cols) + x
-
-*/
-
 namespace eop {
 
 	struct vec2 {
@@ -31,7 +21,7 @@ namespace eop {
 		std::vector<std::pair<std::string, std::string>> carriedIdentifiers;
 
 		std::vector<std::pair<std::string, std::string>> disabledZoneCollapseIdentifiers;
-		
+
 		std::vector<std::string>	zoneCollapsedIdentifiers;
 		std::vector<int>			cells;
 	};
@@ -49,7 +39,7 @@ namespace eop {
 
 	struct District {
 		int rows, cols;
-		
+
 		std::vector<bool> occupiableCells;
 		std::vector<Zone> zones;
 
@@ -90,8 +80,5 @@ namespace eop {
 		Entities entities;
 	};
 
-	void PrintDistrictIteration(EOP_Config& eop_config, int iteration, int identifierId);
-	
-	void GenerateDistrict(EOP_Config& eop_config, int repeats);
-
 }
+

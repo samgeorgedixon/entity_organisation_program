@@ -1,86 +1,88 @@
-#include "generate.h"
-  
+#include "evaluate.h"
+
+#include "random.h"
+
 namespace eop {
 
-	District m_district;
-	Entities m_entities;
+	int m_rows, m_cols;
+	int m_cellCount, m_entityCount, m_identifierCount;
+	int m_repeats;
+
+	int m_totalEntities;
+	int m_cellsToCollapse;
+
+	District				m_district;
+	std::vector<Entity>		m_entities;
+	std::vector<Identifier> m_identifiers;
 
 	std::vector<Entity> m_originalEntities;
 
 	std::vector<int> m_collapsedCells;
 	std::vector<int> m_defaultCollapsedCells;
-	std::vector<int> m_entityCount;
-	std::vector<int> m_defaultEntityCount;
 
 	std::vector<std::vector<int>> entityIdentifierCounts;
 
-	int m_totalEntities;
-	int m_cellsToCollapse;
-	int m_repeats;
+	void PrintEOP_ConfigIteration(EOP_Config& eop_config, int identifierId, int iteration) {
+		LOG("Row: - ");
 
-	void ApplyGlobalEntityConditions(std::vector<bool>& cells) {
-		for (int i = 0; i < m_entities.entities.size(); i++) {
-			for (int j = 0; j < m_entities.entities[i].entityCellConditions.size(); j++) {
-				int x = m_entities.entities[i].entityCellConditions[j].x;
-				int y = m_entities.entities[i].entityCellConditions[j].y;
-				
-				int index = (y * m_district.cols) + x;
+		int j = 0;
+		for (int i = 0; i < eop_config.district.rows * eop_config.district.cols; i++) {
+			int id = eop_config.district.iterations[iteration].cells[i];
 
-				cells[index * m_entities.entities.size() + i] = false;
+			if (id == -1) {
+				LOG("NA : ");
 			}
-			for (int j = 0; j < m_entities.entities[i].entityZoneConditions.size(); j++) {
-				int zone = m_entities.entities[i].entityZoneConditions[j];
-				for (int k = 0; k < m_district.zones[zone].cells.size(); k++) {
-					int x = m_district.zones[zone].cells[k].x;
-					int y = m_district.zones[zone].cells[k].y;
-					
-					int index = (y * m_district.cols) + x;
+			else {
+				LOG(eop_config.entities.entities[id].identifiersValues[identifierId].value << " : ");
+			}
 
-					cells[index * m_entities.entities.size() + i] = false;
-				}
+			j++;
+			if (j >= eop_config.district.cols && i + 1 < eop_config.district.rows * eop_config.district.cols) {
+				LOG("\nRow: - ");
+				j = 0;
 			}
 		}
+		LOG("\n");
 	}
 
-	void RemoveUnoccupiableCells(std::vector<bool>& cells) {
-		m_cellsToCollapse = m_district.rows * m_district.cols;
+	void PrintEOP_Config(EOP_Config& eop_config, int identifierId) {
+		for (int i = 0; i < eop_config.district.iterations.size(); i++) {
+			PrintEOP_ConfigIteration(eop_config, identifierId, i);
 
-		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
-			if (!m_district.occupiableCells[i]) {
-				for (int j = 0; j < m_entities.entities.size(); j++)
-					cells[(i * m_entities.entities.size()) + j] = false;
+			if (i != eop_config.district.iterations.size() - 1) {
+				LOG("---\n");
 			}
 		}
 	}
 
 	void DropEntityCount(std::vector<bool>& cells, int entity) {
-		if (m_entityCount[entity] > 1) {
-			m_entityCount[entity]--;
+		if (m_entities[entity].count > 1) {
+			m_entities[entity].count--;
 		}
-		else if (m_entityCount[entity] == 1) {
-			m_entityCount[entity]--;
-			for (int i = 0; i < (m_district.rows * m_district.cols); i++) {
+		else if (m_entities[entity].count == 1) {
+			m_entities[entity].count--;
+
+			for (int i = 0; i < m_cellCount; i++) {
 				bool isCollapsed = false;
+
 				for (int j = 0; j < m_collapsedCells.size(); j++) {
 					if (m_collapsedCells[j] == i)
 						isCollapsed = true;
 				}
-				if (isCollapsed)
+				if (isCollapsed) {
 					continue;
-				cells[(i * m_entities.entities.size()) + entity] = false;
+				}
+				cells[(i * m_entityCount) + entity] = false;
 			}
 		}
 	}
 
 	void SetEntityCounts(std::vector<bool>& cells) {
-		m_entityCount.clear();
-		for (int i = 0; i < m_entities.entities.size(); i++) {
-			m_entityCount.push_back(m_entities.entities[i].count);
-		}
 		for (int i = 0; i < m_collapsedCells.size(); i++) {
 			int entityId = -1;
-			for (int j = 0; j < m_entities.entities.size(); j++) {
-				if (cells[(m_collapsedCells[i] * m_entities.entities.size()) + j]) {
+
+			for (int j = 0; j < m_entityCount; j++) {
+				if (cells[(m_collapsedCells[i] * m_entityCount) + j]) {
 					entityId = j;
 				}
 			}
@@ -90,33 +92,26 @@ namespace eop {
 		}
 	}
 
-	int RandomIntRange(int low, int high) {
-		if (high == 0)
-			return 0;
-
-		return low + (rand() % high);
-	}
-	
 	void CollapseCell(std::vector<bool>& cells, int iteration, int cellIndex) {
 		m_collapsedCells.push_back(cellIndex);
-		
+
 		std::vector<int> possibleCollapses;
-		for (int i = 0; i < m_entities.entities.size(); i++) {
-			if (cells[(cellIndex * m_entities.entities.size()) + i] == true)
+		for (int i = 0; i < m_entityCount; i++) {
+			if (cells[(cellIndex * m_entityCount) + i] == true)
 				possibleCollapses.push_back(i);
 		}
 
 		if (possibleCollapses.size() == 0)
 			return;
-		
+
 		// Collapse Cell into Random Entity.
 		int entity = possibleCollapses[RandomIntRange(0, possibleCollapses.size())];
-		for (int i = 0; i < m_entities.entities.size(); i++) {
+		for (int i = 0; i < m_entityCount; i++) {
 			if (i == entity)
 				continue;
-			cells[(cellIndex * m_entities.entities.size()) + i] = false;
+			cells[(cellIndex * m_entityCount) + i] = false;
 		}
-		
+
 		DropEntityCount(cells, entity);
 
 		// Get Current Zone
@@ -124,7 +119,7 @@ namespace eop {
 
 		for (int i = 0; i < m_district.zones.size(); i++) {
 			for (int j = 0; j < m_district.zones[i].cells.size(); j++) {
-				if (cellIndex == (m_district.zones[i].cells[j].y * m_district.cols) + m_district.zones[i].cells[j].x) {
+				if (cellIndex == (m_district.zones[i].cells[j].y * m_cols) + m_district.zones[i].cells[j].x) {
 					currentZone = i;
 					break;
 				}
@@ -133,20 +128,20 @@ namespace eop {
 				break;
 			}
 		}
-		
+
 		if (currentZone != -1) {
 			bool zoneCollapsed = false;
 
 			for (int i = 0; i < m_district.zones[currentZone].cells.size(); i++) {
-				int zoneCellIndex = (m_district.zones[currentZone].cells[i].y * m_district.cols) + m_district.zones[currentZone].cells[i].x;
+				int zoneCellIndex = (m_district.zones[currentZone].cells[i].y * m_cols) + m_district.zones[currentZone].cells[i].x;
 
 				if (cellIndex == zoneCellIndex) {
 					continue;
 				}
 
 				int count = 0;
-				for (int j = 0; j < m_entities.entities.size(); j++) {
-					if (cells[(zoneCellIndex * m_entities.entities.size()) + j] == true) {
+				for (int j = 0; j < m_entityCount; j++) {
+					if (cells[(zoneCellIndex * m_entityCount) + j] == true) {
 						count++;
 					}
 				}
@@ -162,8 +157,8 @@ namespace eop {
 					std::string identifier = m_district.zones[currentZone].collapsedIdentifiers[i].first;
 					int	identifierIndex = -1;
 
-					for (int j = 0; j < m_entities.identifiers.size(); j++) {
-						if (identifier == m_entities.identifiers[j].name) {
+					for (int j = 0; j < m_identifierCount; j++) {
+						if (identifier == m_identifiers[j].name) {
 							identifierIndex = j;
 							break;
 						}
@@ -172,7 +167,7 @@ namespace eop {
 						continue;
 					}
 
-					std::string entityValue = m_entities.entities[entity].identifiersValues[identifierIndex].value;
+					std::string entityValue = m_entities[entity].identifiersValues[identifierIndex].value;
 					std::string collapsedIdentifierValue = m_district.zones[currentZone].collapsedIdentifiers[i].second;
 
 					if (entityValue == collapsedIdentifierValue) {
@@ -190,8 +185,8 @@ namespace eop {
 
 						int identifierIndex = -1;
 
-						for (int k = 0; k < m_entities.identifiers.size(); k++) {
-							if (m_entities.identifiers[k].name == m_district.zones[currentZone].collapsedIdentifiers[i].first) {
+						for (int k = 0; k < m_identifierCount; k++) {
+							if (m_identifiers[k].name == m_district.zones[currentZone].collapsedIdentifiers[i].first) {
 								identifierIndex = k;
 								break;
 							}
@@ -203,9 +198,9 @@ namespace eop {
 
 						std::vector<int> restrictedEntities;
 
-						for (int j = 0; j < m_entities.entities.size(); j++) {
+						for (int j = 0; j < m_entityCount; j++) {
 							std::string identifierValue = m_district.zones[currentZone].collapsedIdentifiers[i].second;
-							std::string entityIdentifierValue = m_entities.entities[j].identifiersValues[identifierIndex].value;
+							std::string entityIdentifierValue = m_entities[j].identifiersValues[identifierIndex].value;
 
 							if (entityIdentifierValue != identifierValue) {
 								restrictedEntities.push_back(j);
@@ -213,14 +208,14 @@ namespace eop {
 						}
 
 						for (int j = 0; j < m_district.zones[currentZone].cells.size(); j++) {
-							int zoneCellIndex = (m_district.zones[currentZone].cells[j].y * m_district.cols) + m_district.zones[currentZone].cells[j].x;
+							int zoneCellIndex = (m_district.zones[currentZone].cells[j].y * m_cols) + m_district.zones[currentZone].cells[j].x;
 
 							if (cellIndex == zoneCellIndex) {
 								continue;
 							}
 
 							for (int k = 0; k < restrictedEntities.size(); k++) {
-								cells[(zoneCellIndex * m_entities.entities.size()) + restrictedEntities[k]] = false;
+								cells[(zoneCellIndex * m_entityCount) + restrictedEntities[k]] = false;
 							}
 						}
 						break;
@@ -230,26 +225,26 @@ namespace eop {
 		}
 
 		// Check Cells.
-		for (int i = 0; i < m_entities.entities[entity].identifiersValues.size(); i++) {
+		for (int i = 0; i < m_entities[entity].identifiersValues.size(); i++) {
 			std::vector<int> entityConditions;
 
-			for (int j = 0; j < m_entities.entities.size(); j++) {
-				for (int k = 0; k < m_entities.entities[entity].identifiersValues[i].conditions.size(); k++) {
-					if (m_originalEntities[j].identifiersValues[i].value == m_entities.entities[entity].identifiersValues[i].conditions[k]) {
+			for (int j = 0; j < m_entityCount; j++) {
+				for (int k = 0; k < m_entities[entity].identifiersValues[i].conditions.size(); k++) {
+					if (m_originalEntities[j].identifiersValues[i].value == m_entities[entity].identifiersValues[i].conditions[k]) {
 						entityConditions.push_back(j);
 					}
 				}
 			}
 
 			// Cell Conditions.
-			for (int j = 0; j < m_entities.identifiers[i].relitiveCellConditions.size(); j++) {
-				int relMovX = m_entities.identifiers[i].relitiveCellConditions[j].x;
-				int relMovY = m_entities.identifiers[i].relitiveCellConditions[j].y * m_district.cols;
+			for (int j = 0; j < m_identifiers[i].relitiveCellConditions.size(); j++) {
+				int relMovX = m_identifiers[i].relitiveCellConditions[j].x;
+				int relMovY = m_identifiers[i].relitiveCellConditions[j].y * m_cols;
 
-				if (cellIndex + relMovX + relMovY < 0 || cellIndex + relMovX + relMovY > m_district.rows * m_district.cols - 1)
+				if (cellIndex + relMovX + relMovY < 0 || cellIndex + relMovX + relMovY > m_cellCount - 1)
 					continue;
 
-				if (ceil((cellIndex + relMovX) / m_district.cols) != ceil(cellIndex / m_district.cols))
+				if (ceil((cellIndex + relMovX) / m_cols) != ceil(cellIndex / m_cols))
 					continue;
 
 				bool already = false;
@@ -262,14 +257,14 @@ namespace eop {
 				if (already)
 					continue;
 
-				int cellPeopleIndex = ((cellIndex + relMovX + relMovY) * m_entities.entities.size());
+				int cellPeopleIndex = ((cellIndex + relMovX + relMovY) * m_entityCount);
 
 				for (int k = 0; k < entityConditions.size(); k++) {
 					cells[cellPeopleIndex + entityConditions[k]] = false;
 				}
 
 				int count = 0;
-				for (int k = 0; k < m_entities.entities.size(); k++) {
+				for (int k = 0; k < m_entityCount; k++) {
 					if (cells[cellPeopleIndex + k] == true)
 						count++;
 				}
@@ -282,14 +277,14 @@ namespace eop {
 			}
 
 			// Zone Conditions.
-			for (int l = 0; l < m_entities.identifiers[i].relitiveZoneConditions.size(); l++) {
-				int zone = currentZone + m_entities.identifiers[i].relitiveZoneConditions[l];
+			for (int l = 0; l < m_identifiers[i].relitiveZoneConditions.size(); l++) {
+				int zone = currentZone + m_identifiers[i].relitiveZoneConditions[l];
 
 				if (zone < 0 || zone >= m_district.zones.size())
 					continue;
 
 				for (int j = 0; j < m_district.zones[zone].cells.size(); j++) {
-					int index = (m_district.zones[zone].cells[j].y * m_district.cols) + m_district.zones[zone].cells[j].x;
+					int index = (m_district.zones[zone].cells[j].y * m_cols) + m_district.zones[zone].cells[j].x;
 
 					bool already = false;
 					for (int k = 0; k < m_collapsedCells.size(); k++) {
@@ -301,14 +296,14 @@ namespace eop {
 					if (already)
 						continue;
 
-					int cellPeopleIndex = (index * m_entities.entities.size());
+					int cellPeopleIndex = (index * m_entityCount);
 
 					for (int k = 0; k < entityConditions.size(); k++) {
 						cells[cellPeopleIndex + entityConditions[k]] = false;
 					}
 
 					int count = 0;
-					for (int k = 0; k < m_entities.entities.size(); k++) {
+					for (int k = 0; k < m_entityCount; k++) {
 						if (cells[cellPeopleIndex + k] == true)
 							count++;
 					}
@@ -325,9 +320,9 @@ namespace eop {
 		int cellIndex;
 		//std::vector<int> cellIndexes;
 
-		for (int i = 0; i < m_district.rows * m_district.cols * m_entities.entities.size(); i += m_entities.entities.size()) {
+		for (int i = 0; i < m_cellCount * m_entityCount; i += m_entityCount) {
 			int superposCount = 0;
-			for (int j = 0; j < m_entities.entities.size(); j++)
+			for (int j = 0; j < m_entityCount; j++)
 				superposCount += cells[i + j];
 
 			if (superposCount < minSuperposCount && superposCount > 1) {
@@ -349,85 +344,77 @@ namespace eop {
 			return true;
 		}
 		//int cellIndex = cellIndexes[RandomIntRange(0, cellIndexes.size())];
-		
-		CollapseCell(cells, iteration, cellIndex / m_entities.entities.size());
+
+		CollapseCell(cells, iteration, cellIndex / m_entityCount);
 		return false;
 	}
-	
+
 	int RunCollapses(std::vector<bool>& cells, int iteration) {
 		m_collapsedCells = m_defaultCollapsedCells;
-		//m_entityCount = m_defaultEntityCount;
 		SetEntityCounts(cells);
 
 		bool done = false;
 		while (true) {
 			done = Collapse(cells, iteration);
 
-			if (done)
+			if (done) {
 				break;
-
-			//PrintDistrict(m_district, m_entities, m_cells);
-			//LOG("---\n");
+			}
 		}
 
 		return m_collapsedCells.size();
 	}
 
-	void PrintDistrictIteration(EOP_Config& eop_config, int iteration, int identifierId) {
-		LOG("Row: - ");
-		int j = 0;
-		for (int i = 0; i < eop_config.district.rows * eop_config.district.cols; i++) {
-			int id = eop_config.district.iterations[iteration].cells[i];
-			if (id == -1)
-				LOG("NA : ");
-			else
-				LOG(eop_config.entities.entities[id].identifiersValues[identifierId].value << " : ");
-			
-			j++;
-			if (j >= eop_config.district.cols && i + 1 < eop_config.district.rows * eop_config.district.cols) {
-				LOG("\nRow: - ");
-				j = 0;
-			}
-		}
-		LOG("\n");
-	}
-
-	void PrintDistrictDebug(District& district, Entities& entities, std::vector<bool>& cellsIds) {
-		LOG("Row: - ");
-		int j = 0;
-		for (int i = 0; i < (district.rows * district.cols) * entities.entities.size(); i += entities.entities.size()) {
-			int initialIndex = 0;
-			for (int j = 0; j < entities.entities.size(); j++) {
-				LOG(cellsIds[i + j] << ", ");
-
-				if (cellsIds[i + j] == true)
-					initialIndex = j;
-			}
-			LOG(": ");
-			j++;
-			if (j >= district.cols && i + entities.entities.size() < (district.rows * district.cols) * entities.entities.size()) {
-				LOG("\nRow: - ");
-				j = 0;
-			}
-		}
-		LOG("\n");
-	}
-
 	void SetDistrictCells(std::vector<bool>& cells, int iteration) {
-		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
+		for (int i = 0; i < m_cellCount; i++) {
 			m_district.iterations[iteration].cells.push_back(-1);
 
-			for (int j = 0; j < m_entities.entities.size(); j++) {
-				if (cells[(i * m_entities.entities.size()) + j])
+			for (int j = 0; j < m_entityCount; j++) {
+				if (cells[(i * m_entityCount) + j])
 					m_district.iterations[iteration].cells[i] = j;
 			}
 		}
 	}
 
-	void DisableCellCoordinate(std::vector<bool>& cells, vec2 cellCoord) {
-		int cellIndex = ((cellCoord.y * m_district.cols) + cellCoord.x) * m_entities.entities.size();
+	void ApplyGlobalEntityConditions(std::vector<bool>& cells) {
+		for (int i = 0; i < m_entityCount; i++) {
+			for (int j = 0; j < m_entities[i].entityCellConditions.size(); j++) {
+				int x = m_entities[i].entityCellConditions[j].x;
+				int y = m_entities[i].entityCellConditions[j].y;
 
-		for (int j = 0; j < m_entities.entities.size(); j++) {
+				int index = (y * m_cols) + x;
+
+				cells[index * m_entityCount + i] = false;
+			}
+			for (int j = 0; j < m_entities[i].entityZoneConditions.size(); j++) {
+				int zone = m_entities[i].entityZoneConditions[j];
+				for (int k = 0; k < m_district.zones[zone].cells.size(); k++) {
+					int x = m_district.zones[zone].cells[k].x;
+					int y = m_district.zones[zone].cells[k].y;
+
+					int index = (y * m_cols) + x;
+
+					cells[index * m_entityCount + i] = false;
+				}
+			}
+		}
+	}
+
+	void RemoveUnoccupiableCells(std::vector<bool>& cells) {
+		m_cellsToCollapse = m_cellCount;
+
+		for (int i = 0; i < m_cellCount; i++) {
+			if (!m_district.occupiableCells[i]) {
+				for (int j = 0; j < m_entityCount; j++)
+					cells[(i * m_entityCount) + j] = false;
+			}
+		}
+	}
+
+	void DisableCellCoordinate(std::vector<bool>& cells, vec2 cellCoord) {
+		int cellIndex = ((cellCoord.y * m_cols) + cellCoord.x) * m_entityCount;
+
+		for (int j = 0; j < m_entityCount; j++) {
 			cells[cellIndex + j] = false;
 		}
 	}
@@ -454,8 +441,8 @@ namespace eop {
 			std::string identifier = m_district.iterations[iteration].disabledIdentifiers[i].first;
 			int			identifierIndex = -1;
 
-			for (int j = 0; j < m_entities.identifiers.size(); j++) {
-				if (identifier == m_entities.identifiers[j].name) {
+			for (int j = 0; j < m_identifierCount; j++) {
+				if (identifier == m_identifiers[j].name) {
 					identifierIndex = j;
 					break;
 				}
@@ -466,28 +453,29 @@ namespace eop {
 
 			std::string value = m_district.iterations[iteration].disabledIdentifiers[i].second;
 
-			for (int j = 0; j < m_entities.entities.size(); j++) {
+			for (int j = 0; j < m_entityCount; j++) {
 				std::string entityValue = m_originalEntities[j].identifiersValues[identifierIndex].value;
 				if (value == entityValue) {
 					disabledEntities.push_back(j);
 				}
 			}
 		}
-		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
+		for (int i = 0; i < m_cellCount; i++) {
 			for (int j = 0; j < disabledEntities.size(); j++) {
-				cells[(i * m_entities.entities.size()) + disabledEntities[j]] = false;
+				cells[(i * m_entityCount) + disabledEntities[j]] = false;
 			}
 		}
 	}
 
 	void CarryCellCoordinate(std::vector<bool>& cells, vec2 cellCoord, int iteration) {
-		int cellIndex = (cellCoord.y * m_district.cols) + cellCoord.x;
+		int cellIndex = (cellCoord.y * m_cols) + cellCoord.x;
 
-		for (int j = 0; j < m_entities.entities.size(); j++) {
+		for (int j = 0; j < m_entityCount; j++) {
 			if (j != m_district.iterations[iteration - 1].cells[cellIndex]) {
-				cells[(cellIndex * m_entities.entities.size()) + j] = false;
-			} else {
-				cells[(cellIndex * m_entities.entities.size()) + j] = true;
+				cells[(cellIndex * m_entityCount) + j] = false;
+			}
+			else {
+				cells[(cellIndex * m_entityCount) + j] = true;
 			}
 		}
 
@@ -519,8 +507,8 @@ namespace eop {
 			std::string identifier = m_district.iterations[iteration].carriedIdentifiers[i].first;
 			int			identifierIndex = -1;
 
-			for (int j = 0; j < m_entities.identifiers.size(); j++) {
-				if (identifier == m_entities.identifiers[j].name) {
+			for (int j = 0; j < m_identifierCount; j++) {
+				if (identifier == m_identifiers[j].name) {
 					identifierIndex = j;
 					break;
 				}
@@ -531,17 +519,17 @@ namespace eop {
 
 			std::string value = m_district.iterations[iteration].carriedIdentifiers[i].second;
 
-			for (int j = 0; j < m_entities.entities.size(); j++) {
+			for (int j = 0; j < m_entityCount; j++) {
 				std::string entityValue = m_originalEntities[j].identifiersValues[identifierIndex].value;
 				if (value == entityValue) {
 					carriedEntities.push_back(j);
 				}
 			}
 		}
-		for (int i = 0; i < m_district.cols; i++) {
-			for (int j = 0; j < m_district.rows; j++) {
+		for (int i = 0; i < m_cols; i++) {
+			for (int j = 0; j < m_rows; j++) {
 				for (int k = 0; k < carriedEntities.size(); k++) {
-					int cellEntityIndex = m_district.iterations[iteration - 1].cells[(j * m_district.cols) + i];
+					int cellEntityIndex = m_district.iterations[iteration - 1].cells[(j * m_cols) + i];
 
 					if (cellEntityIndex == carriedEntities[k]) {
 						CarryCellCoordinate(cells, { i, j }, iteration);
@@ -550,13 +538,13 @@ namespace eop {
 			}
 		}
 	}
-	
+
 	void SetZoneIdentifierConditions(std::vector<bool>& cells) {
 		for (int i = 0; i < m_district.zones.size(); i++) {
 			std::vector<int> restrictedEntities;
 			std::vector<int> allowedEntities;
-			
-			for (int l = 0; l < m_entities.entities.size(); l++) {
+
+			for (int l = 0; l < m_entityCount; l++) {
 				for (int j = 0; j < m_district.zones[i].positiveZoneIdentifierConditions.size(); j++) {
 					for (int k = 0; k < m_district.zones[i].negativeZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = m_district.zones[i].negativeZoneIdentifierConditions[j][k];
@@ -569,10 +557,11 @@ namespace eop {
 					for (int k = 0; k < m_district.zones[i].positiveZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = m_district.zones[i].positiveZoneIdentifierConditions[j][k];
 
-						if (identifierCondition != m_entities.entities[l].identifiersValues[j].value) {
+						if (identifierCondition != m_entities[l].identifiersValues[j].value) {
 							restrictedEntities.push_back(l);
 							break;
-						} else if (identifierCondition == m_entities.entities[l].identifiersValues[j].value) {
+						}
+						else if (identifierCondition == m_entities[l].identifiersValues[j].value) {
 							allowedEntities.push_back(l);
 							break;
 						}
@@ -590,7 +579,7 @@ namespace eop {
 			}
 
 			for (int l = 0; l < m_district.zones[i].cells.size(); l++) {
-				int cellIndex = ((m_district.zones[i].cells[l].y * m_district.cols) + m_district.zones[i].cells[l].x) * m_entities.entities.size();
+				int cellIndex = ((m_district.zones[i].cells[l].y * m_cols) + m_district.zones[i].cells[l].x) * m_entityCount;
 
 				for (int j = 0; j < restrictedEntities.size(); j++) {
 					cells[cellIndex + restrictedEntities[j]] = false;
@@ -607,7 +596,7 @@ namespace eop {
 			std::vector<int> entityIndexes;
 
 			for (int j = 0; j < m_district.zones[i].cells.size(); j++) {
-				int cellIndex = (m_district.zones[i].cells[j].y * m_district.cols) + m_district.zones[i].cells[j].x;
+				int cellIndex = (m_district.zones[i].cells[j].y * m_cols) + m_district.zones[i].cells[j].x;
 				int entityIndex = m_district.iterations[iteration].cells[cellIndex];
 
 				if (entityIndex == -1) {
@@ -629,8 +618,8 @@ namespace eop {
 					std::string identifier = m_district.zones[i].collapsedIdentifiers[k].first;
 					int	identifierIndex = -1;
 
-					for (int j = 0; j < m_entities.identifiers.size(); j++) {
-						if (identifier == m_entities.identifiers[j].name) {
+					for (int j = 0; j < m_identifierCount; j++) {
+						if (identifier == m_identifiers[j].name) {
 							identifierIndex = j;
 							break;
 						}
@@ -639,7 +628,7 @@ namespace eop {
 						continue;
 					}
 
-					std::string entityValue = m_entities.entities[entityIndex].identifiersValues[identifierIndex].value;
+					std::string entityValue = m_entities[entityIndex].identifiersValues[identifierIndex].value;
 					std::string collapsedIdentifierValue = m_district.zones[i].collapsedIdentifiers[k].second;
 
 					if (entityValue == collapsedIdentifierValue) {
@@ -671,8 +660,8 @@ namespace eop {
 
 					int identifierIndex = -1;
 
-					for (int k = 0; k < m_entities.identifiers.size(); k++) {
-						if (m_entities.identifiers[k].name == m_district.zones[i].collapsedIdentifiers[j].first) {
+					for (int k = 0; k < m_identifierCount; k++) {
+						if (m_identifiers[k].name == m_district.zones[i].collapsedIdentifiers[j].first) {
 							identifierIndex = k;
 							break;
 						}
@@ -685,7 +674,7 @@ namespace eop {
 						entityIdentifierCounts[entityIndexes[k]][identifierIndex]--;
 
 						if (entityIdentifierCounts[entityIndexes[k]][identifierIndex] == 0) {
-							m_entities.entities[entityIndexes[k]].identifiersValues[identifierIndex].value = ".";
+							m_entities[entityIndexes[k]].identifiersValues[identifierIndex].value = ".";
 						}
 					}
 					zoneCollapsedIdentifier = m_district.zones[i].collapsedIdentifiers[j].first + ", " + m_district.zones[i].collapsedIdentifiers[j].second;
@@ -697,10 +686,10 @@ namespace eop {
 	}
 
 	void FindCellsToCollapse(std::vector<bool>& cells) {
-		for (int i = 0; i < m_district.rows * m_district.cols; i++) {
+		for (int i = 0; i < m_cellCount; i++) {
 			bool occupied = false;
-			for (int j = 0; j < m_entities.entities.size(); j++) {
-				if (cells[(i * m_entities.entities.size()) + j]) {
+			for (int j = 0; j < m_entityCount; j++) {
+				if (cells[(i * m_entityCount) + j]) {
 					occupied = true; break;
 				}
 			}
@@ -709,32 +698,11 @@ namespace eop {
 			}
 		}
 	}
-	
-	void RunIteration(int iteration) {
-		std::vector<bool> cellsBase((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
-		std::vector<bool> cellsBest((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
-		std::vector<bool> cellsWorking((m_district.rows * m_district.cols) * m_entities.entities.size(), 1);
 
-		m_collapsedCells.clear();
-		m_district.iterations[iteration].zoneCollapsedIdentifiers = std::vector<std::string>(m_district.zones.size(), "");
-		
-		ApplyGlobalEntityConditions(cellsBase);
-		RemoveUnoccupiableCells(cellsBase);
+	std::vector<bool> RepeatRunningCollapses(const std::vector<bool> cellsBase, int iteration) {
+		std::vector<bool> cellsBest		((m_cellCount) * m_entityCount, 1);
+		std::vector<bool> cellsWorking	((m_cellCount) * m_entityCount, 1);
 
-		DisableCellsZonesIdentifiers(cellsBase, iteration);
-		CarryCellsZonesIdentifiers(cellsBase, iteration);
-
-		SetZoneIdentifierConditions(cellsBase);
-		
-		FindCellsToCollapse(cellsBase);
-
-		//m_defaultEntityCount = m_entityCount;
-		m_defaultCollapsedCells = m_collapsedCells;
-
-		//PrintDistrictDebug(m_district, m_entities, cellsBase);
-		//LOG("---\n");
-
-		// Repeat Running Collapses
 		int currentCollapsedCellsCount = 0;
 		for (int i = 0; i < m_repeats; i++) {
 			cellsWorking = cellsBase;
@@ -745,54 +713,88 @@ namespace eop {
 				cellsBest = cellsWorking;
 
 				currentCollapsedCellsCount = collapsedCellsCount;
-				if (collapsedCellsCount == m_cellsToCollapse || currentCollapsedCellsCount >= m_totalEntities)
+				if (collapsedCellsCount == m_cellsToCollapse || currentCollapsedCellsCount >= m_totalEntities) {
 					break;
+				}
 			}
 		}
+		return cellsBest;
+	}
+
+	void RunIteration(int iteration) {
+		std::vector<bool> cellsBase((m_cellCount) * m_entityCount, 1);
+
+		m_collapsedCells.clear();
+		m_district.iterations[iteration].zoneCollapsedIdentifiers = std::vector<std::string>(m_district.zones.size(), "");
+
+		ApplyGlobalEntityConditions(cellsBase);
+		RemoveUnoccupiableCells(cellsBase);
+
+		DisableCellsZonesIdentifiers(cellsBase, iteration);
+		CarryCellsZonesIdentifiers(cellsBase, iteration);
+
+		SetZoneIdentifierConditions(cellsBase);
+
+		FindCellsToCollapse(cellsBase);
+
+		m_defaultCollapsedCells = m_collapsedCells;
+
+		std::vector<bool> cellsBest = RepeatRunningCollapses(cellsBase, iteration);
 
 		SetDistrictCells(cellsBest, iteration);
 
 		CollapseZoneIdentifiers(iteration);
-
-		//PrintDistrictDebug(m_district, m_entities, cellsBest);
-		LOG("---\n");
 	}
 
 	void SetTotalEntities() {
 		m_totalEntities = 0;
-		for (int i = 0; i < m_entities.entities.size(); i++) {
-			if (m_entities.entities[i].count == 0) {
+
+		for (int i = 0; i < m_entityCount; i++) {
+			if (m_entities[i].count == 0) {
 				m_totalEntities = INT_MAX;
 				return;
 			}
-			m_totalEntities += m_entities.entities[i].count;
+			m_totalEntities += m_entities[i].count;
 		}
 	}
 
 	void SetEntityIdentifierCounts() {
-		int identifierCount = m_entities.identifiers.size();
+		int identifierCount = m_identifierCount;
 
 		std::vector<int> identifierCounts(identifierCount);
 
 		for (int j = 0; j < identifierCount; j++) {
-			identifierCounts[j] = m_entities.identifiers[j].iterationCount;
+			identifierCounts[j] = m_identifiers[j].iterationCount;
 		}
 
-		for (int i = 0; i < m_entities.entities.size(); i++) {
+		for (int i = 0; i < m_entities.size(); i++) {
 			entityIdentifierCounts.push_back(identifierCounts);
 		}
 	}
-	
-	void GenerateDistrict(EOP_Config& eop_config, int repeats) {
-		m_district = eop_config.district;
-		m_entities = eop_config.entities;
 
-		m_originalEntities = eop_config.entities.entities;
+	void Setup(EOP_Config& eop_config, int repeats) {
+		m_district = eop_config.district;
+		m_entities = eop_config.entities.entities;
+		m_identifiers = eop_config.entities.identifiers;
+
+		m_rows = m_district.rows;
+		m_cols = m_district.cols;
+
+		m_cellCount = m_rows * m_cols;
+		m_entityCount = m_entities.size();
+		m_identifierCount = m_identifiers.size();
 		m_repeats = repeats;
 
-		srand((unsigned)time(NULL)); // Random Seed
+		m_originalEntities = eop_config.entities.entities;
 
+		SetupRandom();
+		
 		SetTotalEntities();
+	}
+
+	void EvaluateEOP_Config(EOP_Config& eop_config, int repeats) {
+		Setup(eop_config, repeats);
+
 		SetEntityIdentifierCounts();
 
 		for (int i = 0; i < m_district.iterations.size(); i++) {

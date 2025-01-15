@@ -1,5 +1,18 @@
 #include "application.h"
 
+#include "entity_organisation_program.h"
+
+#include <thread>
+
+#include "sdl/SDL.h"
+#include "sdl/SDL_syswm.h"
+#include "imgui/imgui.h"
+
+#include "imgui/imgui_manager.h"
+
+#include "windows.h"
+#include "commdlg.h"
+
 namespace app {
 
 	SDL_Window* window;
@@ -64,12 +77,9 @@ namespace app {
 			runConfigFinished = true; return;
 		}
 
-		eop::GenerateDistrict(eop_config, repeatsSlider);
+		eop::EvaluateEOP_Config(eop_config, repeatsSlider);
 
-		for (int i = 0; i < eop_config.district.iterations.size(); i++) {
-			eop::PrintDistrictIteration(eop_config, i, 1);
-			LOG("---\n");
-		}
+		eop::PrintEOP_Config(eop_config, 1);
 
 		int outRes = eop::WriteXML_EOPConfig(configPathBuffer, eop_config, identifierBuffer);
 

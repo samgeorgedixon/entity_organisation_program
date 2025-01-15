@@ -1,7 +1,7 @@
 #pragma once
 #include "core.h"
 
-#include "generate.h"
+#include "eop_config.h"
 
 #include "std_incl.h"
 
