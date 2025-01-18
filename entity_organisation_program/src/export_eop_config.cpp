@@ -38,23 +38,32 @@ namespace eop {
 		zonesSheet.cell(2, 2).value() = "Name";
 		zonesSheet.cell(2, 3).value() = "Collapsed Identifiers";
 
+		int hiddenCount = 0;
 		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
 			if (eopConfig.district.iterations[i].hide) {
+				hiddenCount++;
 				continue;
 			}
-			zonesSheet.cell(3, i + 3).value() = eopConfig.district.iterations[i].name;
+			zonesSheet.cell(3, (i + 3) - hiddenCount).value() = eopConfig.district.iterations[i].name;
 		}
-
+		hiddenCount = 0;
+		
 		for (int i = 0; i < eopConfig.district.zones.size(); i++) {
 			zonesSheet.cell(i + 4, 1).value() = std::to_string(i);
 			zonesSheet.cell(i + 4, 2).value() = eopConfig.district.zones[i].name;
 
 			for (int j = 0; j < eopConfig.district.iterations.size(); j++) {
-				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size() || eopConfig.district.iterations[j].hide) {
+				if (eopConfig.district.iterations[j].hide) {
+					hiddenCount++;
 					continue;
 				}
-				zonesSheet.cell(i + 4, j + 3).value() = eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i];
+				if (i >= eopConfig.district.iterations[j].zoneCollapsedIdentifiers.size()) {
+					continue;
+				}
+				
+				zonesSheet.cell(i + 4, (j + 3) - hiddenCount).value() = eopConfig.district.iterations[j].zoneCollapsedIdentifiers[i];
 			}
+			hiddenCount = 0;
 		}
 	}
 

@@ -116,10 +116,10 @@ namespace eop {
 			std::string name = iterationsSheet.cell(i, 1).getString();
 
 			bool hiden = false;
-			if (iterationsSheet.cell(i, 2).getString() == "T") {
+			if (iterationsSheet.cell(i, 2).getString() == "T" || iterationsSheet.cell(i, 2).getString() == "t") {
 				hiden = true;
 			}
-
+			
 			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.cell(i, 3).getString());
 			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.cell(i, 4).getString());
 			std::vector<std::pair<std::string, std::string>> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 5).getString());
