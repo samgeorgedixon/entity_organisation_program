@@ -1,7 +1,7 @@
 project "imgui"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++14"
+	cppdialect "C++17"
 
     targetdir ("%{wks.location}/bin/%{prj.name}/" .. builddir)
     objdir ("%{wks.location}/bin_int/%{prj.name}/" .. builddir)

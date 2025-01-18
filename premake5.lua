@@ -1,7 +1,7 @@
 workspace "entity_organisation_program"
     architecture "x64"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++17"
 
     startproject "entity_organisation_program-app"
     
@@ -23,6 +23,8 @@ builddir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}"
 includes = {}
 includes["imgui"] = "entity_organisation_program-app/vendor/imgui"
 includes["sdl"] = "entity_organisation_program-app/vendor/sdl/include"
+
+includes["OpenXLSX"] = "entity_organisation_program/vendor/OpenXLSX/build/include"
 
 group "dependencies"
     include "entity_organisation_program-app/vendor/imgui/imgui"
@@ -46,14 +48,16 @@ project "entity_organisation_program-app"
         "%{includes.nativefiledialog}"
     }
     libdirs {
-        "%{prj.location}/vendor/sdl/lib/x64"
+        "%{prj.location}/vendor/sdl/lib/x64",
+        "entity_organisation_program/vendor/OpenXLSX/build/lib"
     }
     links {
         "entity_organisation_program",
         "imgui",
         "sdl2.lib",
         "sdl2main.lib",
-        "comctl32.lib"
+        "comctl32.lib",
+        "OpenXLSX.lib"
     }
 
     postbuildcommands {
@@ -79,9 +83,11 @@ project "entity_organisation_program-console"
     includedirs {
         "%{prj.name}/src",
         "entity_organisation_program/src",
+        "entity_organisation_program/vendor/OpenXLSX/build/lib"
     }
     links {
-        "entity_organisation_program"
+        "entity_organisation_program",
+        "OpenXLSX.lib"
     }
 
 project "entity_organisation_program"
@@ -97,4 +103,5 @@ project "entity_organisation_program"
     }
     includedirs {
         "%{prj.name}/src",
+        "%{includes.OpenXLSX}"
     }

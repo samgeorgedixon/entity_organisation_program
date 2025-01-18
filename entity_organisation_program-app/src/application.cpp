@@ -1,18 +1,5 @@
 #include "application.h"
 
-#include "entity_organisation_program.h"
-
-#include <thread>
-
-#include "sdl/SDL.h"
-#include "sdl/SDL_syswm.h"
-#include "imgui/imgui.h"
-
-#include "imgui/imgui_manager.h"
-
-#include "windows.h"
-#include "commdlg.h"
-
 namespace app {
 
 	SDL_Window* window;
@@ -70,7 +57,7 @@ namespace app {
 	void RunConfig() {
 		runConfigFinished = false;
 
-		eop::EOP_Config eop_config = eop::LoadXMLFile(configPathBuffer);
+		eop::EOP_Config eop_config = eop::ImportEOP_ConfigXLSX(configPathBuffer);
 		if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {
 			outputLine1 = "Unable to Open File: " + std::string(configPathBuffer);
 			
@@ -81,12 +68,12 @@ namespace app {
 
 		eop::PrintEOP_Config(eop_config, 1);
 
-		int outRes = eop::WriteXML_EOPConfig(configPathBuffer, eop_config, identifierBuffer);
-
+		int outRes = eop::ExportEOP_ConfigXLSX(configPathBuffer, eop_config, identifierBuffer);
+		
 		if (!outRes) {
 			outputLine1 = "Unable to Write File: " + std::string(configPathBuffer);
 			LOG(outputLine1 << "\n");
-
+		
 			runConfigFinished = true; return;
 		}
 
@@ -208,8 +195,8 @@ namespace app {
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Open...")) {
-			std::string filePath = OpenFileDialog("XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
-
+			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0 XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
+			
 			if (filePath.size() <= bufferSize) {
 				int i = 0;
 				for (i; i < filePath.size(); i++) {
