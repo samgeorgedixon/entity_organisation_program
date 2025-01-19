@@ -31,39 +31,6 @@ namespace eop {
 		return output;
 	}
 
-	void PrintEOP_ConfigIteration(EOP_Config& eop_config, int identifierId, int iteration) {
-		LOG("Row: - ");
-
-		int j = 0;
-		for (int i = 0; i < eop_config.district.rows * eop_config.district.cols; i++) {
-			int id = eop_config.district.iterations[iteration].cells[i];
-
-			if (id == -1) {
-				LOG("NA : ");
-			}
-			else {
-				LOG(eop_config.entities.entities[id].identifiersValues[identifierId].value << " : ");
-			}
-
-			j++;
-			if (j >= eop_config.district.cols && i + 1 < eop_config.district.rows * eop_config.district.cols) {
-				LOG("\nRow: - ");
-				j = 0;
-			}
-		}
-		LOG("\n");
-	}
-
-	void PrintEOP_Config(EOP_Config& eop_config, int identifierId) {
-		for (int i = 0; i < eop_config.district.iterations.size(); i++) {
-			PrintEOP_ConfigIteration(eop_config, identifierId, i);
-
-			if (i != eop_config.district.iterations.size() - 1) {
-				LOG("---\n");
-			}
-		}
-	}
-
 	void DropEntityCount(std::vector<bool>& cells, int entity) {
 		if (m_entities[entity].count > 1) {
 			m_entities[entity].count--;
@@ -359,7 +326,7 @@ namespace eop {
 
 		if (minSuperposCount == INT_MAX || m_collapsedCells.size() >= m_totalEntities) {
 			// Finished this Collapse Repeat.
-			LOG("Collapsed: " << m_collapsedCells.size() << " / " << m_cellsToCollapse << "\n");
+			EOP_LOG("Collapsed: " << m_collapsedCells.size() << " / " << m_cellsToCollapse << "\n");
 			return true;
 		}
 		//int cellIndex = cellIndexes[RandomIntRange(0, cellIndexes.size())];

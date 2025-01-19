@@ -68,6 +68,7 @@ project "entity_organisation_program-app"
         kind "ConsoleApp"
     filter "configurations:release"
         kind "WindowedApp"
+        defines "EOP_DISABLE_LOGGING"
 
 project "entity_organisation_program-console"
     location "entity_organisation_program-console"

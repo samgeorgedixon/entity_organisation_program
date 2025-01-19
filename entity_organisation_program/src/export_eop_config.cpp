@@ -31,6 +31,61 @@ namespace eop {
 		return identifiersIndexes;
 	}
 
+#ifdef EOP_DISABLE_LOGGING
+
+	void PrintEOP_ConfigIteration(const EOP_Config& eopConfig, std::string identifiers, int iteration) {
+
+	}
+
+	void PrintEOP_Config(const EOP_Config& eopConfig, std::string identifiers) {
+
+	}
+
+#else
+
+	void PrintEOP_ConfigIteration(const EOP_Config& eopConfig, std::string identifiers, int iteration) {
+		std::vector<int> identifierIndexes = GetIdentifierIndexes(eopConfig, identifiers);
+
+		int j = 0;
+
+		EOP_LOG("Row: - ");
+		for (int i = 0; i < eopConfig.district.rows * eopConfig.district.cols; i++) {
+			int id = eopConfig.district.iterations[iteration].cells[i];
+
+			if (id == -1) {
+				EOP_LOG("NA : ");
+			}
+			else {
+				for (int k = 0; k < identifierIndexes.size(); k++) {
+					EOP_LOG(eopConfig.entities.entities[id].identifiersValues[identifierIndexes[k]].value);
+					if (k < identifierIndexes.size() - 1) {
+						EOP_LOG(", ");
+					}
+				}
+				EOP_LOG(" : ");
+			}
+
+			j++;
+			if (j >= eopConfig.district.cols && i + 1 < eopConfig.district.rows * eopConfig.district.cols) {
+				EOP_LOG("\nRow: - ");
+				j = 0;
+			}
+		}
+		EOP_LOG("\n");
+	}
+
+	void PrintEOP_Config(const EOP_Config& eopConfig, std::string identifiers) {
+		for (int i = 0; i < eopConfig.district.iterations.size(); i++) {
+			PrintEOP_ConfigIteration(eopConfig, identifiers, i);
+
+			if (i != eopConfig.district.iterations.size() - 1) {
+				EOP_LOG("---\n");
+			}
+		}
+	}
+
+#endif
+
 	void SetZonesSheet(const EOP_Config& eopConfig, OpenXLSX::XLWorksheet& zonesSheet) {
 		zonesSheet.cell(1, 1).value() = "Organised Zones";
 
@@ -149,6 +204,7 @@ namespace eop {
 		try {
 			doc.save();
 		} catch (...) {
+			EOP_LOG("Unable to Write File : " << filePath);
 			return 0;
 		}
 		doc.close();

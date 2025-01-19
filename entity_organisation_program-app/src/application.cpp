@@ -25,7 +25,7 @@ namespace app {
 
 	bool runConfigFinished = true;
 
-	std::string OpenFileDialog(const char* filter) {
+	std::string OpenFileDiaEOP_LOG(const char* filter) {
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION(&wmInfo.version);
 		SDL_GetWindowWMInfo(window, &wmInfo);
@@ -65,14 +65,14 @@ namespace app {
 		}
 
 		eop::EvaluateEOP_Config(eop_config, repeatsSlider);
-
-		eop::PrintEOP_Config(eop_config, 1);
+		
+		eop::PrintEOP_Config(eop_config, "name");
 
 		int outRes = eop::ExportEOP_ConfigXLSX(configPathBuffer, eop_config, identifierBuffer);
 		
 		if (!outRes) {
 			outputLine1 = "Unable to Write File: " + std::string(configPathBuffer);
-			LOG(outputLine1 << "\n");
+			EOP_LOG(outputLine1 << "\n");
 		
 			runConfigFinished = true; return;
 		}
@@ -195,7 +195,7 @@ namespace app {
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Open...")) {
-			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0 XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
+			std::string filePath = OpenFileDiaEOP_LOG("Excel Workbook (*.xlsx)\0 * .xlsx\0 XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
 			
 			if (filePath.size() <= bufferSize) {
 				int i = 0;

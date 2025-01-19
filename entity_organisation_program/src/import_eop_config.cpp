@@ -218,6 +218,17 @@ namespace eop {
 	EOP_Config ImportEOP_ConfigXLSX(std::string filePath) {
 		EOP_Config eopConfig;
 
+		std::ifstream file;
+		file.open(filePath);
+
+		if (!file.good()) {
+			EOP_LOG("Unable to Open File: " << filePath);
+
+			file.close();
+			return eopConfig;
+		}
+		file.close();
+
 		OpenXLSX::XLDocument doc;
 		doc.open(filePath);
 
