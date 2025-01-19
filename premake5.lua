@@ -56,8 +56,7 @@ project "entity_organisation_program-app"
         "imgui",
         "sdl2.lib",
         "sdl2main.lib",
-        "comctl32.lib",
-        "OpenXLSX.lib"
+        "comctl32.lib"
     }
 
     postbuildcommands {
@@ -66,9 +65,11 @@ project "entity_organisation_program-app"
 
     filter "configurations:debug"
         kind "ConsoleApp"
+        links "OpenXLSXd.lib"
     filter "configurations:release"
         kind "WindowedApp"
         defines "EOP_DISABLE_LOGGING"
+        links "OpenXLSX.lib"
 
 project "entity_organisation_program-console"
     location "entity_organisation_program-console"
@@ -83,13 +84,18 @@ project "entity_organisation_program-console"
     }
     includedirs {
         "%{prj.name}/src",
-        "entity_organisation_program/src",
+        "entity_organisation_program/src"
+    }
+    libdirs {
         "entity_organisation_program/vendor/OpenXLSX/build/lib"
     }
     links {
-        "entity_organisation_program",
-        "OpenXLSX.lib"
+        "entity_organisation_program"
     }
+    filter "configurations:debug"
+        links "OpenXLSXd.lib"
+    filter "configurations:release"
+        links "OpenXLSX.lib"
 
 project "entity_organisation_program"
     location "entity_organisation_program"

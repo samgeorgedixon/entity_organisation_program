@@ -195,7 +195,7 @@ namespace app {
 		ImGui::PopItemWidth();
 
 		if (ImGui::Button("Open...")) {
-			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0 XML Spreadsheet(*.xml)\0 * .xml\0").c_str();
+			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0").c_str();
 			
 			if (filePath.size() <= bufferSize) {
 				int i = 0;
