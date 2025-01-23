@@ -25,7 +25,7 @@ Params ExtractParams(int argc, char* argv[]) {
 
 int main(int argc, char* argv[]) {
 	Params params = ExtractParams(argc, argv);
-
+	
 	eop::EOP_Config eop_config = eop::ImportEOP_ConfigXLSX(params.filePath);
 
 	if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {

@@ -54,6 +54,10 @@ namespace eop {
 	}
 
 	void SetEntityCounts(std::vector<bool>& cells) {
+		for (int i = 0; i < m_entityCount; i++) {
+			m_entities[i].count = m_originalEntities[i].count;
+		}
+
 		for (int i = 0; i < m_collapsedCells.size(); i++) {
 			int entityId = -1;
 
@@ -353,13 +357,20 @@ namespace eop {
 
 	void SetDistrictCells(std::vector<bool>& cells, int iteration) {
 		for (int i = 0; i < m_cellCount; i++) {
-			m_district.iterations[iteration].cells.push_back(-1);
+			int entity = -1;
 
 			for (int j = 0; j < m_entityCount; j++) {
-				if (cells[(i * m_entityCount) + j]) {
-					m_district.iterations[iteration].cells[i] = j;
+				int cellIndex = (i * m_entityCount) + j;
+
+				if (cells[cellIndex]) {
+					if (entity != -1) {
+						entity = -1;
+						break;
+					}
+					entity = j;
 				}
 			}
+			m_district.iterations[iteration].cells.push_back(entity);
 		}
 	}
 
@@ -686,7 +697,7 @@ namespace eop {
 		}
 	}
 
-	std::vector<bool> RepeatRunningCollapses(const std::vector<bool> cellsBase, int iteration) {
+	std::vector<bool> RepeatRunningCollapses(const std::vector<bool>& cellsBase, int iteration) {
 		std::vector<bool> cellsBest		((m_cellCount) * m_entityCount, 1);
 		std::vector<bool> cellsWorking	((m_cellCount) * m_entityCount, 1);
 
@@ -746,13 +757,13 @@ namespace eop {
 	}
 
 	void SetEntityIdentifierCounts() {
-		int identifierCount = m_identifierCount;
+		std::vector<int> identifierCounts(m_identifierCount);
 
-		std::vector<int> identifierCounts(identifierCount);
-
-		for (int j = 0; j < identifierCount; j++) {
+		for (int j = 0; j < m_identifierCount; j++) {
 			identifierCounts[j] = m_identifiers[j].iterationCount;
 		}
+
+		entityIdentifierCounts.clear();
 
 		for (int i = 0; i < m_entities.size(); i++) {
 			entityIdentifierCounts.push_back(identifierCounts);
@@ -777,12 +788,12 @@ namespace eop {
 		SetupRandom();
 		
 		SetTotalEntities();
+
+		SetEntityIdentifierCounts();
 	}
 
 	void EvaluateEOP_Config(EOP_Config& eop_config, int repeats) {
 		Setup(eop_config, repeats);
-
-		SetEntityIdentifierCounts();
 		
 		for (int i = 0; i < m_district.iterations.size(); i++) {
 			RunIteration(i);

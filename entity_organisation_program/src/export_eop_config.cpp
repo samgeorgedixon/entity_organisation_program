@@ -144,10 +144,6 @@ namespace eop {
 					data += eopConfig.entities.entities[entityId].identifiersValues[identifierIndexes[identifierIndexes.size() - 1]].value;
 				}
 
-				if (data == "") {
-					continue;
-				}
-
 				iterationSheet.cell(i + 2, j + 1).value() = data;
 			}
 		}

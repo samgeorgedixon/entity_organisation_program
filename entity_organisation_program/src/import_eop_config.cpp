@@ -217,6 +217,9 @@ namespace eop {
 
 	EOP_Config ImportEOP_ConfigXLSX(std::string filePath) {
 		EOP_Config eopConfig;
+		
+		eopConfig.district.rows = 0;
+		eopConfig.district.cols = 0;
 
 		std::ifstream file;
 		file.open(filePath);
