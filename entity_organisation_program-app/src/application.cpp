@@ -23,7 +23,7 @@ namespace app {
 
 	int repeatsSlider = 25;
 
-	bool runConfigFinished = true;
+	static bool runConfigFinished = true;
 
 	std::string OpenFileDialog(const char* filter) {
 		SDL_SysWMinfo wmInfo;
@@ -55,8 +55,6 @@ namespace app {
 	}
 	
 	void RunConfig() {
-		runConfigFinished = false;
-
 		eop::EOP_Config eop_config = eop::ImportEOP_ConfigXLSX(configPathBuffer);
 		if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {
 			outputLine1 = "Unable to Open File: " + std::string(configPathBuffer);
@@ -175,9 +173,7 @@ namespace app {
 		CheckConfigPathBufferChange();
 	}
 
-	void Render() {
-		StartFrame();
-
+	void RenderGUI() {
 		ImGui::Begin("Entity Organisation Program", &showImGui, SetFullscreen());
 
 		Menu();
@@ -186,7 +182,7 @@ namespace app {
 		ImGui::Spacing();
 
 		ImGui::Separator();
-		
+
 		ImGui::Spacing();
 		ImGui::Text("Config File: "); ImGui::SameLine();
 
@@ -196,7 +192,7 @@ namespace app {
 
 		if (ImGui::Button("Open...")) {
 			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0").c_str();
-			
+
 			if (filePath.size() <= bufferSize) {
 				int i = 0;
 				for (i; i < filePath.size(); i++) {
@@ -218,13 +214,13 @@ namespace app {
 
 		ImGui::Spacing();
 		ImGui::Separator();
-		
+
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("Advanced")) {
 			ImGui::Text("Repeats: "); ImGui::SameLine();
 			ImGui::SliderInt("##repeats", &repeatsSlider, 1, 250);
 		}
-		
+
 		ImGui::Spacing();
 		ImGui::Separator();
 
@@ -240,15 +236,32 @@ namespace app {
 			outputLine0 = "Running...";
 			outputLine1 = "";
 
+			runConfigFinished = false;
+
 			std::thread runConfig(RunConfig);
 
+			ImGui::End();
+			EndFrame();
+
 			while (!runConfigFinished) {
-				Render();
+				StartFrame();
+
+				RenderGUI();
+
+				EndFrame();
 			}
 			runConfig.join();
+
+			return;
 		}
 
 		ImGui::End();
+	}
+
+	void Render() {
+		StartFrame();
+
+		RenderGUI();
 
 		EndFrame();
 	}

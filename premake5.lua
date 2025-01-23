@@ -44,8 +44,7 @@ project "entity_organisation_program-app"
         "%{prj.name}/src",
         "entity_organisation_program/src",
         "%{includes.imgui}",
-        "%{includes.sdl}",
-        "%{includes.nativefiledialog}"
+        "%{includes.sdl}"
     }
     libdirs {
         "%{prj.location}/vendor/sdl/lib/x64",
