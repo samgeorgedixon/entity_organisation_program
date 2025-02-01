@@ -118,9 +118,9 @@ namespace eop {
 			if (!zoneCollapsed) {
 				// Collapse Zone
 				for (int i = 0; i < district.zones[currentZone].collapsedIdentifiers.size(); i++) {
-					std::string identifier = district.zones[currentZone].collapsedIdentifiers[i].first;
+					std::string identifier = district.zones[currentZone].collapsedIdentifiers[i].name;
 					int	identifierIndex = -1;
-
+					
 					for (int j = 0; j < identifierCount; j++) {
 						if (Low(identifier) == Low(identifiers[j].name)) {
 							identifierIndex = j;
@@ -132,14 +132,14 @@ namespace eop {
 					}
 
 					std::string entityValue = entities[entity].identifiersValues[identifierIndex].value;
-					std::string collapsedIdentifierValue = district.zones[currentZone].collapsedIdentifiers[i].second;
+					std::string collapsedIdentifierValue = district.zones[currentZone].collapsedIdentifiers[i].value;
 
 					if (Low(entityValue) == Low(collapsedIdentifierValue)) {
 						bool disabled = false;
 
 						for (int k = 0; k < district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
-							if (Low(district.zones[currentZone].collapsedIdentifiers[i].first) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].first)
-								&& Low(district.zones[currentZone].collapsedIdentifiers[i].second) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].second)) {
+							if (Low(district.zones[currentZone].collapsedIdentifiers[i].name) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
+								&& Low(district.zones[currentZone].collapsedIdentifiers[i].value) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
 								disabled = true;
 							}
 						}
@@ -150,7 +150,7 @@ namespace eop {
 						int identifierIndex = -1;
 
 						for (int k = 0; k < identifierCount; k++) {
-							if (Low(identifiers[k].name) == Low(district.zones[currentZone].collapsedIdentifiers[i].first)) {
+							if (Low(identifiers[k].name) == Low(district.zones[currentZone].collapsedIdentifiers[i].name)) {
 								identifierIndex = k;
 								break;
 							}
@@ -163,7 +163,7 @@ namespace eop {
 						std::vector<int> restrictedEntities;
 
 						for (int j = 0; j < entityCount; j++) {
-							std::string identifierValue = district.zones[currentZone].collapsedIdentifiers[i].second;
+							std::string identifierValue = district.zones[currentZone].collapsedIdentifiers[i].value;
 							std::string entityIdentifierValue = entities[j].identifiersValues[identifierIndex].value;
 
 							if (Low(entityIdentifierValue) != Low(identifierValue)) {
@@ -518,7 +518,7 @@ namespace eop {
 		std::vector<int> disabledEntities;
 
 		for (int i = 0; i < district.iterations[iteration].disabledIdentifiers.size(); i++) {
-			std::string identifier = district.iterations[iteration].disabledIdentifiers[i].first;
+			std::string identifier = district.iterations[iteration].disabledIdentifiers[i].name;
 			int			identifierIndex = -1;
 
 			for (int j = 0; j < identifierCount; j++) {
@@ -531,7 +531,7 @@ namespace eop {
 				continue;
 			}
 
-			std::string value = district.iterations[iteration].disabledIdentifiers[i].second;
+			std::string value = district.iterations[iteration].disabledIdentifiers[i].value;
 
 			for (int j = 0; j < entityCount; j++) {
 				std::string entityValue = originalEntities[j].identifiersValues[identifierIndex].value;
@@ -547,7 +547,7 @@ namespace eop {
 		}
 	}
 
-	void CarryCellCoordinate(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, vec2 cellCoord, int iteration) {
+	void CarryCellCoordinate(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, vec2 cellCoord, int iteration, int carryIterationIndex) {
 
 		int cols = district.cols;
 		int entityCount = entities.size();
@@ -556,14 +556,14 @@ namespace eop {
 		int entity = -1;
 
 		for (int j = 0; j < entityCount; j++) {
-			if (j != district.iterations[iteration - 1].cells[cellIndex]) {
+			if (j != district.iterations[carryIterationIndex].cells[cellIndex]) {
 				cells[(cellIndex * entityCount) + j] = false;
 			}
 			else {
 				cells[(cellIndex * entityCount) + j] = true;
 			}
 		}
-		entity = district.iterations[iteration - 1].cells[cellIndex];
+		entity = district.iterations[carryIterationIndex].cells[cellIndex];
 
 		if (entity == -1) {
 			return;
@@ -584,52 +584,93 @@ namespace eop {
 			return;
 
 		// Carry Cells
-		for (int i = 0; i < district.iterations[iteration].carriedCells.size(); i++) {
-			CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, district.iterations[iteration].carriedCells[i], iteration);
+		for (int l = 0; l < district.iterations[iteration].carriedCells.size(); l++) {
+			int carryIterationIndex = -1;
+
+			for (int i = 0; i < district.iterations.size(); i++) {
+				if (Low(district.iterations[i].name) == Low(district.iterations[iteration].carriedCells[l].first)) {
+					carryIterationIndex = i;
+				}
+			}
+			if (carryIterationIndex == -1) {
+				continue;
+			}
+			
+			for (int i = 0; i < district.iterations[iteration].carriedCells[l].second.size(); i++) {
+				CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts
+					, district.iterations[iteration].carriedCells[l].second[i], iteration, carryIterationIndex);
+			}
 		}
 
 		// Carry Zones
-		for (int i = 0; i < district.iterations[iteration].carriedZones.size(); i++) {
-			int zoneIndex = district.iterations[iteration].carriedZones[i];
+		for (int l = 0; l < district.iterations[iteration].carriedZones.size(); l++) {
+			int carryIterationIndex = -1;
 
-			for (int j = 0; j < district.zones[zoneIndex].cells.size(); j++) {
-				CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, district.zones[district.iterations[iteration].carriedZones[i]].cells[j], iteration);
+			for (int i = 0; i < district.iterations.size(); i++) {
+				if (Low(district.iterations[i].name) == Low(district.iterations[iteration].carriedZones[l].first)) {
+					carryIterationIndex = i;
+				}
+			}
+			if (carryIterationIndex == -1) {
+				continue;
+			}
+
+			for (int i = 0; i < district.iterations[iteration].carriedZones[l].second.size(); i++) {
+				int zoneIndex = district.iterations[iteration].carriedZones[l].second[i];
+
+				for (int j = 0; j < district.zones[zoneIndex].cells.size(); j++) {
+					CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, district.zones[district.iterations[iteration].carriedZones[l].second[i]].cells[j], iteration, carryIterationIndex);
+				}
 			}
 		}
 
 		// Carry Identifiers
-		std::vector<int> carriedEntities;
+		for (int l = 0; l < district.iterations[iteration].carriedIdentifiers.size(); l++) {
+			int carryIterationIndex = -1;
 
-		for (int i = 0; i < district.iterations[iteration].carriedIdentifiers.size(); i++) {
-			std::string identifier = district.iterations[iteration].carriedIdentifiers[i].first;
-			int			identifierIndex = -1;
-
-			for (int j = 0; j < identifierCount; j++) {
-				if (Low(identifier) == Low(identifiers[j].name)) {
-					identifierIndex = j;
-					break;
+			for (int i = 0; i < district.iterations.size(); i++) {
+				if (Low(district.iterations[i].name) == Low(district.iterations[iteration].carriedIdentifiers[l].first)) {
+					carryIterationIndex = i;
 				}
 			}
-			if (identifierIndex == -1) {
+			if (carryIterationIndex == -1) {
 				continue;
 			}
 
-			std::string value = district.iterations[iteration].carriedIdentifiers[i].second;
+			std::vector<int> carriedEntities;
 
-			for (int j = 0; j < entityCount; j++) {
-				std::string entityValue = originalEntities[j].identifiersValues[identifierIndex].value;
-				if (Low(value) == Low(entityValue)) {
-					carriedEntities.push_back(j);
+			for (int i = 0; i < district.iterations[iteration].carriedIdentifiers[l].second.size(); i++) {
+				std::string identifier = district.iterations[iteration].carriedIdentifiers[l].second[i].name;
+				int			identifierIndex = -1;
+
+				for (int j = 0; j < identifierCount; j++) {
+					if (Low(identifier) == Low(identifiers[j].name)) {
+						identifierIndex = j;
+						break;
+					}
+				}
+				if (identifierIndex == -1) {
+					continue;
+				}
+
+				std::string value = district.iterations[iteration].carriedIdentifiers[l].second[i].value;
+
+				for (int j = 0; j < entityCount; j++) {
+					std::string entityValue = originalEntities[j].identifiersValues[identifierIndex].value;
+					if (Low(value) == Low(entityValue)) {
+						carriedEntities.push_back(j);
+					}
 				}
 			}
-		}
-		for (int i = 0; i < cols; i++) {
-			for (int j = 0; j < rows; j++) {
-				for (int k = 0; k < carriedEntities.size(); k++) {
-					int cellEntityIndex = district.iterations[iteration - 1].cells[(j * cols) + i];
 
-					if (cellEntityIndex == carriedEntities[k]) {
-						CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, { i, j }, iteration);
+			for (int i = 0; i < cols; i++) {
+				for (int j = 0; j < rows; j++) {
+					for (int k = 0; k < carriedEntities.size(); k++) {
+						int cellEntityIndex = district.iterations[carryIterationIndex].cells[(j * cols) + i];
+
+						if (cellEntityIndex == carriedEntities[k]) {
+							CarryCellCoordinate(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, { i, j }, iteration, carryIterationIndex);
+						}
 					}
 				}
 			}
@@ -699,7 +740,7 @@ namespace eop {
 			int occupiedCellsCount = district.zones[i].cells.size();
 
 			std::vector<int> entityIndexes;
-
+				
 			for (int j = 0; j < district.zones[i].cells.size(); j++) {
 				int cellIndex = (district.zones[i].cells[j].y * cols) + district.zones[i].cells[j].x;
 				int entityIndex = district.iterations[iteration].cells[cellIndex];
@@ -720,7 +761,7 @@ namespace eop {
 				}
 
 				for (int k = 0; k < district.zones[i].collapsedIdentifiers.size(); k++) {
-					std::string identifier = district.zones[i].collapsedIdentifiers[k].first;
+					std::string identifier = district.zones[i].collapsedIdentifiers[k].name;
 					int	identifierIndex = -1;
 
 					for (int j = 0; j < identifierCount; j++) {
@@ -734,7 +775,7 @@ namespace eop {
 					}
 
 					std::string entityValue = entities[entityIndex].identifiersValues[identifierIndex].value;
-					std::string collapsedIdentifierValue = district.zones[i].collapsedIdentifiers[k].second;
+					std::string collapsedIdentifierValue = district.zones[i].collapsedIdentifiers[k].value;
 
 					if (Low(entityValue) == Low(collapsedIdentifierValue)) {
 						collpasedIdentifierCellCounts[k]++;
@@ -754,8 +795,8 @@ namespace eop {
 					bool disabled = false;
 
 					for (int k = 0; k < district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
-						if (Low(district.zones[i].collapsedIdentifiers[j].first) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].first)
-							&& Low(district.zones[i].collapsedIdentifiers[j].second) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].second)) {
+						if (Low(district.zones[i].collapsedIdentifiers[j].name) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
+							&& Low(district.zones[i].collapsedIdentifiers[j].value) == Low(district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
 							disabled = true;
 						}
 					}
@@ -766,23 +807,25 @@ namespace eop {
 					int identifierIndex = -1;
 
 					for (int k = 0; k < identifierCount; k++) {
-						if (Low(identifiers[k].name) == Low(district.zones[i].collapsedIdentifiers[j].first)) {
+						if (Low(identifiers[k].name) == Low(district.zones[i].collapsedIdentifiers[j].name)) {
 							identifierIndex = k;
 							break;
 						}
 					}
 
-					for (int k = 0; k < entityIndexes.size(); k++) {
-						if (entityIdentifierCounts[entityIndexes[k]][identifierIndex] == 0) {
-							continue;
-						}
-						entityIdentifierCounts[entityIndexes[k]][identifierIndex]--;
+					if (!district.iterations[iteration].disableDropIterationCount) {
+						for (int k = 0; k < entityIndexes.size(); k++) {
+							if (entityIdentifierCounts[entityIndexes[k]][identifierIndex] == 0) {
+								continue;
+							}
+							entityIdentifierCounts[entityIndexes[k]][identifierIndex]--;
 
-						if (entityIdentifierCounts[entityIndexes[k]][identifierIndex] == 0) {
-							entities[entityIndexes[k]].identifiersValues[identifierIndex].value = ".";
+							if (entityIdentifierCounts[entityIndexes[k]][identifierIndex] == 0) {
+								entities[entityIndexes[k]].identifiersValues[identifierIndex].value = ".";
+							}
 						}
 					}
-					zoneCollapsedIdentifier = district.zones[i].collapsedIdentifiers[j].first + ", " + district.zones[i].collapsedIdentifiers[j].second;
+					zoneCollapsedIdentifier = district.zones[i].collapsedIdentifiers[j].name + ", " + district.zones[i].collapsedIdentifiers[j].value;
 					break;
 				}
 			}

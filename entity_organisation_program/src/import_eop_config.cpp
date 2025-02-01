@@ -35,14 +35,14 @@ namespace eop {
 		}
 		return zoneConditions;
 	}
-	std::vector<std::pair<std::string, std::string>> FindIdentifierPairs(std::string value) {
-		std::vector<std::pair<std::string, std::string>> collapsedIdentifiers;
+	std::vector<value_pair> FindIdentifierPairs(std::string value, char bound) {
+		std::vector<value_pair> collapsedIdentifiers;
 
 		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
 		std::stringstream ss(value);
 
 		std::string token;
-		while (getline(ss, token, ')')) {
+		while (getline(ss, token, bound)) {
 			std::string identifier = token.substr(1).substr(0, token.find(",") - 1);
 			std::string value = token.substr(1).substr(token.find(","));
 
@@ -119,19 +119,37 @@ namespace eop {
 			if (iterationsSheet.cell(i, 2).getString() == "T" || iterationsSheet.cell(i, 2).getString() == "t") {
 				hiden = true;
 			}
+			bool disableDropIterationCount = false;
+			if (iterationsSheet.cell(i, 3).getString() == "T" || iterationsSheet.cell(i, 3).getString() == "t") {
+				disableDropIterationCount = true;
+			}
 			
-			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.cell(i, 3).getString());
-			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.cell(i, 4).getString());
-			std::vector<std::pair<std::string, std::string>> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 5).getString());
+			std::vector<vec2>	disabledCells = FindCellConditions(iterationsSheet.cell(i, 4).getString());
+			std::vector<int>	disabledZones = FindZoneConditions(iterationsSheet.cell(i, 5).getString());
+			std::vector<value_pair> disabledIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 6).getString(), ')');
 
-			std::vector<vec2>	carriedCells = FindCellConditions(iterationsSheet.cell(i, 6).getString());
-			std::vector<int>	carriedZones = FindZoneConditions(iterationsSheet.cell(i, 7).getString());
-			std::vector<std::pair<std::string, std::string>> carriedIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 8).getString());
+			std::vector<std::pair<std::string, std::vector<vec2>>> carriedCells;
+			std::vector<value_pair> carriedCellsString = FindIdentifierPairs(iterationsSheet.cell(i, 7).getString(), ']');
+			for (int i = 0; i < carriedCellsString.size(); i++) {
+				carriedCells.push_back({ carriedCellsString[i].name, FindCellConditions(carriedCellsString[i].value) });
+			}
 
-			std::vector<std::pair<std::string, std::string>> disabledZoneCollapseIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 9).getString());
+			std::vector<std::pair<std::string, std::vector<int>>> carriedZones;
+			std::vector<value_pair> carriedZonesString = FindIdentifierPairs(iterationsSheet.cell(i, 8).getString(), ']');
+			for (int i = 0; i < carriedZonesString.size(); i++) {
+				carriedZones.push_back({ carriedZonesString[i].name, FindZoneConditions(carriedZonesString[i].value) });
+			}
+
+			std::vector<std::pair<std::string, std::vector<value_pair>>> carriedIdentifiers;
+			std::vector<value_pair> carriedIdentifiersString = FindIdentifierPairs(iterationsSheet.cell(i, 9).getString(), ']');
+			for (int i = 0; i < carriedIdentifiersString.size(); i++) {
+				carriedIdentifiers.push_back({ carriedIdentifiersString[i].name, FindIdentifierPairs(carriedIdentifiersString[i].value, ')') });
+			}
+
+			std::vector<value_pair> disabledZoneCollapseIdentifiers = FindIdentifierPairs(iterationsSheet.cell(i, 10).getString(), ')');
 
 			district.iterations.push_back
-			({ name, hiden, disabledCells, disabledZones, disabledIdentifiers, carriedCells, carriedZones, carriedIdentifiers, disabledZoneCollapseIdentifiers });
+			({ name, hiden, disableDropIterationCount, disabledCells, disabledZones, disabledIdentifiers, carriedCells, carriedZones, carriedIdentifiers, disabledZoneCollapseIdentifiers });
 			i++;
 		}
 
@@ -154,7 +172,7 @@ namespace eop {
 			int zone = std::stoi(zonesSheet.cell(i, 1).getString());
 
 			district.zones[zone].name = zonesSheet.cell(i, 2).getString();
-			district.zones[zone].collapsedIdentifiers = FindIdentifierPairs(zonesSheet.cell(i, 3).getString());
+			district.zones[zone].collapsedIdentifiers = FindIdentifierPairs(zonesSheet.cell(i, 3).getString(), ')');
 			district.zones[zone].positiveZoneIdentifierConditions = positiveZoneIdentifierConditions;
 			district.zones[zone].negativeZoneIdentifierConditions = negativeZoneIdentifierConditions;
 
