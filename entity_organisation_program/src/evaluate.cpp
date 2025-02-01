@@ -59,7 +59,7 @@ namespace eop {
 		}
 	}
 
-	void CollapseCell(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int cellIndex) {
+	void CollapseCell(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int cellIndex, int entity) {
 		int cols = district.cols;
 
 		int cellCount = district.rows * district.cols;
@@ -68,18 +68,7 @@ namespace eop {
 
 		collapsedCells.push_back(cellIndex);
 
-		std::vector<int> possibleCollapses;
-		for (int i = 0; i < entityCount; i++) {
-			if (cells[(cellIndex * entityCount) + i] == true) {
-				possibleCollapses.push_back(i);
-			}
-		}
-
-		if (possibleCollapses.size() == 0)
-			return;
-
-		// Collapse Cell into Random Entity.
-		int entity = possibleCollapses[RandomIntRange(0, possibleCollapses.size())];
+		// Collapse Cell into Entity.
 		for (int i = 0; i < entityCount; i++) {
 			if (i == entity) {
 				continue;
@@ -240,13 +229,16 @@ namespace eop {
 				}
 
 				int count = 0;
+				int collapseEntityIndex = -1;
+
 				for (int k = 0; k < entityCount; k++) {
 					if (cells[cellPeopleIndex + k] == true) {
 						count++;
+						collapseEntityIndex = k;
 					}
 				}
 				if (count == 1) {
-					CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex + relMovX + relMovY);
+					CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex + relMovX + relMovY, collapseEntityIndex);
 				}
 			}
 
@@ -283,23 +275,23 @@ namespace eop {
 					}
 
 					int count = 0;
+					int collapseEntityIndex = -1;
+
 					for (int k = 0; k < entityCount; k++) {
 						if (cells[cellPeopleIndex + k] == true) {
 							count++;
+							collapseEntityIndex = k;
 						}
 					}
 					if (count == 1) {
-						CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, index);
+						CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, index, collapseEntityIndex);
 					}
 				}
 			}
 		}
 	}
 
-	bool Collapse(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, 
-		std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, 
-		int iteration, int totalEntities, int cellsToCollapse) {
-
+	std::vector<int> GetPossibleCellCollapses(const District& district, const std::vector<Entity>& entities, const std::vector<bool>& cells) {
 		int cellCount = district.rows * district.cols;
 		int entityCount = entities.size();
 
@@ -321,36 +313,105 @@ namespace eop {
 			}
 		}
 
-		if (possibleCellIndexes.size() == 0) {
-			if (collapsedCells.size() >= totalEntities || collapsedCells.size() >= cellsToCollapse) {
-				EOP_LOG("Collapsed: " << collapsedCells.size() << " / " << cellsToCollapse << "\n");
-				return true;
-			}
+		return possibleCellIndexes;
+	}
 
-			// Backtrack
+	struct Route {
+		std::vector<int> cellRoute;
+		std::vector<int> entityRoute;
 
+		int layer;
+	};
+
+	bool Collapse(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, 
+		std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, 
+		int iteration, int totalEntities, int cellsToCollapse, Route& route, bool fullRandom, bool entitiesRandom) {
+
+		int cellCount = district.rows * district.cols;
+		int entityCount = entities.size();
+
+		std::vector<int> possibleCellIndexes = GetPossibleCellCollapses(district, entities, cells);
+
+		if (possibleCellIndexes.size() == 0 || collapsedCells.size() >= totalEntities || collapsedCells.size() >= cellsToCollapse) {
+			EOP_LOG("Collapsed: " << collapsedCells.size() << " / " << cellsToCollapse << "\n");
 			return true;
 		}
 
-		int cellIndex = possibleCellIndexes[RandomIntRange(0, possibleCellIndexes.size())];
+		if (route.layer >= route.cellRoute.size()) {
+			route.cellRoute.push_back(0);
+		}
+		if (route.layer >= route.entityRoute.size()) {
+			route.entityRoute.push_back(0);
+		}
+
+		if (fullRandom) {
+			int cellIndex = possibleCellIndexes[RandomIntRange(0, possibleCellIndexes.size())];
+
+			std::vector<int> possibleEntityIndexes;
+			for (int i = 0; i < entityCount; i++) {
+				if (cells[(cellIndex * entityCount) + i] == true) {
+					possibleEntityIndexes.push_back(i);
+				}
+			}
+			int entityIndex = possibleEntityIndexes[RandomIntRange(0, possibleEntityIndexes.size())];
+
+			CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex, entityIndex);
+			return false;
+		}
+
+		if (route.cellRoute[route.layer] >= possibleCellIndexes.size()) {
+			route.cellRoute[route.layer] = 0;
+
+			if (entitiesRandom) {
+				route.cellRoute[route.layer + 1]++;
+			}
+			else {
+				route.entityRoute[route.layer]++;
+			}
+		}
+		int cellIndex = possibleCellIndexes[route.cellRoute[route.layer]];
+
+		std::vector<int> possibleEntityIndexes;
+		for (int i = 0; i < entityCount; i++) {
+			if (cells[(cellIndex * entityCount) + i] == true) {
+				possibleEntityIndexes.push_back(i);
+			}
+		}
+
+		int entityIndex = -1;
+		if (entitiesRandom) {
+			entityIndex = possibleEntityIndexes[RandomIntRange(0, possibleEntityIndexes.size())];
+		}
+		else {
+			if (route.entityRoute[route.layer] >= possibleEntityIndexes.size()) {
+				route.entityRoute[route.layer] = 0;
+
+				route.cellRoute[route.layer + 1]++;
+			}
+			entityIndex = possibleEntityIndexes[route.entityRoute[route.layer]];
+		}
 		
-		CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex);
+		CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex, entityIndex);
 		return false;
 	}
 
 	int RunCollapses(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, 
 		std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<int>& defaultCollapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, 
-		int iteration, int totalEntities, int cellsToCollapse) {
+		int iteration, int totalEntities, int cellsToCollapse, Route& route, int depth, bool fullRandom, bool entitiesRandom) {
 
 		collapsedCells = defaultCollapsedCells;
 		SetEntityCounts(district, entities, originalEntities, cells, collapsedCells);
 
-		bool done = false;
-		while (true) {
-			done = Collapse(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse);
+		route.layer = 0;
 
-			if (done) {
-				break;
+		bool done = false;
+		while (!done) {
+			done = Collapse(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse, route, fullRandom, entitiesRandom);
+
+			route.layer++;
+
+			if (route.layer >= depth) {
+				fullRandom = true;
 			}
 		}
 
@@ -487,11 +548,12 @@ namespace eop {
 	}
 
 	void CarryCellCoordinate(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, vec2 cellCoord, int iteration) {
-		int cols = district.cols;
 
+		int cols = district.cols;
 		int entityCount = entities.size();
 
 		int cellIndex = (cellCoord.y * cols) + cellCoord.x;
+		int entity = -1;
 
 		for (int j = 0; j < entityCount; j++) {
 			if (j != district.iterations[iteration - 1].cells[cellIndex]) {
@@ -501,11 +563,17 @@ namespace eop {
 				cells[(cellIndex * entityCount) + j] = true;
 			}
 		}
+		entity = district.iterations[iteration - 1].cells[cellIndex];
 
-		CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex);
+		if (entity == -1) {
+			return;
+		}
+
+		CollapseCell(district, entities, identifiers, originalEntities, cells, collapsedCells, entityIdentifierCounts, iteration, cellIndex, entity);
 	}
 
 	void CarryCellsZonesIdentifiers(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, std::vector<int>& collapsedCells, const std::vector<std::vector<int>>& entityIdentifierCounts, int iteration) {
+
 		int rows = district.rows;
 		int cols = district.cols;
 
@@ -722,26 +790,40 @@ namespace eop {
 		}
 	}
 
-	void FindCellsToCollapse(const District& district, const std::vector<Entity>& entities, std::vector<bool>& cells, int& cellsToCollapse) {
+	void FindCellsToCollapseAndTotalEntities(const District& district, const std::vector<Entity>& entities, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, int& cellsToCollapse, int& totalEntities) {
 		int cellCount = district.rows * district.cols;
 		int entityCount = entities.size();
+
+		std::vector<bool> entityFound(entityCount, false);
 
 		for (int i = 0; i < cellCount; i++) {
 			bool occupied = false;
 			for (int j = 0; j < entityCount; j++) {
 				if (cells[(i * entityCount) + j]) {
-					occupied = true; break;
+					entityFound[j] = true;
+
+					occupied = true;
 				}
 			}
 			if (!occupied) {
 				cellsToCollapse--;
 			}
 		}
+
+		if (totalEntities == INT_MAX) {
+			return;
+		}
+
+		for (int i = 0; i < entityFound.size(); i++) {
+			if (!entityFound[i]) {
+				totalEntities -= originalEntities[i].count;
+			}
+		}
 	}
 
 	std::vector<bool> RepeatRunningCollapses(const District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, 
 		const std::vector<Entity>& originalEntities, const std::vector<bool>& cellsBase, std::vector<int>& collapsedCells, const std::vector<int>& defaultCollapsedCells, 
-		const std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int totalEntities, int repeats, int cellsToCollapse) {
+		const std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int totalEntities, int cellsToCollapse, int depth, bool fullRandom, bool entitiesRandom) {
 
 		int cellCount = district.rows * district.cols;
 		int entityCount = entities.size();
@@ -749,26 +831,57 @@ namespace eop {
 		std::vector<bool> cellsBest		((cellCount) * entityCount, 1);
 		std::vector<bool> cellsWorking	((cellCount) * entityCount, 1);
 
+		Route route = { { 0 }, { 0 }, 0 };
+
 		int currentCollapsedCellsCount = 0;
-		for (int i = 0; i < repeats; i++) {
+		int repeat = 0;
+
+		while (true) {
 			cellsWorking = cellsBase;
 
-			int collapsedCellsCount = RunCollapses(district, entities, identifiers, originalEntities, cellsWorking, collapsedCells, defaultCollapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse);
+			int collapsedCellsCount = RunCollapses(district, entities, identifiers, originalEntities, cellsWorking, collapsedCells, defaultCollapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse, route, depth, fullRandom, entitiesRandom);
+			
+			EOP_LOG("Cell Route: ");
+			for (int i = 0; i < route.cellRoute.size(); i++) {
+				EOP_LOG(route.cellRoute[i] << ", ");
+			}
+			EOP_LOG("\n");
+
+			EOP_LOG("Entity Route: ");
+			for (int i = 0; i < route.entityRoute.size(); i++) {
+				EOP_LOG(route.entityRoute[i] << ", ");
+			}
+			EOP_LOG("\n---\n");
 
 			if (collapsedCellsCount > currentCollapsedCellsCount) {
 				cellsBest = cellsWorking;
-
+			
 				currentCollapsedCellsCount = collapsedCellsCount;
-				if (collapsedCellsCount == cellsToCollapse || currentCollapsedCellsCount >= totalEntities) {
+				if (collapsedCellsCount >= cellsToCollapse || currentCollapsedCellsCount >= totalEntities) {
 					break;
 				}
+			}
+
+			if (route.cellRoute.size() > depth) {
+				if (route.cellRoute[depth] >= 1) {
+					break;
+				}
+			}
+
+			repeat++;
+			if (!fullRandom) {
+				route.cellRoute[0]++;
+			}
+			else if (repeat >= depth) {
+				break;
 			}
 		}
 		return cellsBest;
 	}
 
 	void RunIteration(District& district, std::vector<Entity>& entities, const std::vector<Identifier>& identifiers, const std::vector<Entity>& originalEntities, 
-		std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int totalEntities, int repeats) {
+		std::vector<std::vector<int>>& entityIdentifierCounts, int iteration, int totalEntities, int depth, bool fullRandom, bool entitiesRandom) {
+
 		int cellCount = district.rows * district.cols;
 		int entityCount = entities.size();
 
@@ -784,16 +897,16 @@ namespace eop {
 		ApplyGlobalEntityConditions(district, entities, cellsBase);
 		RemoveUnoccupiableCells(district, entities, cellsBase, cellsToCollapse);
 
+		SetZoneIdentifierConditions(district, entities, originalEntities, cellsBase);
+
 		DisableCellsZonesIdentifiers(district, entities, identifiers, originalEntities, cellsBase, iteration);
 		CarryCellsZonesIdentifiers(district, entities, identifiers, originalEntities, cellsBase, collapsedCells, entityIdentifierCounts, iteration);
+				
+		FindCellsToCollapseAndTotalEntities(district, entities, originalEntities, cellsBase, cellsToCollapse, totalEntities);
 
-		SetZoneIdentifierConditions(district, entities, originalEntities, cellsBase);
-		
-		FindCellsToCollapse(district, entities, cellsBase, cellsToCollapse);
+  		defaultCollapsedCells = collapsedCells;
 
-		defaultCollapsedCells = collapsedCells;
-
-		std::vector<bool> cellsBest = RepeatRunningCollapses(district, entities, identifiers, originalEntities, cellsBase, collapsedCells, defaultCollapsedCells, entityIdentifierCounts, iteration, totalEntities, repeats, cellsToCollapse);
+		std::vector<bool> cellsBest = RepeatRunningCollapses(district, entities, identifiers, originalEntities, cellsBase, collapsedCells, defaultCollapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse, depth, fullRandom, entitiesRandom);
 
 		SetDistrictCells(district, entities, cellsBest, iteration);
 
@@ -835,7 +948,7 @@ namespace eop {
 		SetEntityIdentifierCounts(entities, identifiers, entityIdentifierCounts);
 	}
 
-	void EvaluateEOP_Config(EOP_Config& eop_config, int repeats) {
+	void EvaluateEOP_Config(EOP_Config& eop_config, int depth, bool fullRandom, bool entitiesRandom) {
 		District district = eop_config.district;
 		std::vector<Entity> entities = eop_config.entities.entities;
 
@@ -846,7 +959,7 @@ namespace eop {
 		Setup(entities, eop_config.entities.identifiers, entityIdentifierCounts, totalEntities);
 
 		for (int i = 0; i < district.iterations.size(); i++) {
-			RunIteration(district, entities, eop_config.entities.identifiers, eop_config.entities.entities, entityIdentifierCounts, i, totalEntities, repeats);
+			RunIteration(district, entities, eop_config.entities.identifiers, eop_config.entities.entities, entityIdentifierCounts, i, totalEntities, depth, fullRandom, entitiesRandom);
 		}
 
 		eop_config.district.iterations = district.iterations;

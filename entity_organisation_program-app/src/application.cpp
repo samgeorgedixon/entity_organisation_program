@@ -21,7 +21,11 @@ namespace app {
 
 	char* identifierBuffer = new char[bufferSize];
 
+	int depthSlider = 1;
 	int repeatsSlider = 25;
+	
+	bool fullRandom = false;
+	bool entitiesRandom = true;
 
 	static bool runConfigFinished = true;
 
@@ -62,7 +66,15 @@ namespace app {
 			runConfigFinished = true; return;
 		}
 
-		eop::EvaluateEOP_Config(eop_config, repeatsSlider);
+		int depth = 1;
+		if (fullRandom) {
+			depth = repeatsSlider;
+		}
+		else {
+			depth = depthSlider;
+		}
+
+		eop::EvaluateEOP_Config(eop_config, depth, fullRandom, entitiesRandom);
 		
 		eop::PrintEOP_Config(eop_config, "name");
 
@@ -217,8 +229,20 @@ namespace app {
 
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("Advanced")) {
-			ImGui::Text("Repeats: "); ImGui::SameLine();
-			ImGui::SliderInt("##repeats", &repeatsSlider, 1, 250);
+			ImGui::Text("Full Random: "); ImGui::SameLine();
+			ImGui::Checkbox("##fullRandom", &fullRandom);
+
+			if (fullRandom) {
+				ImGui::Text("Repeats: "); ImGui::SameLine();
+				ImGui::SliderInt("##repeats", &repeatsSlider, 1, 100);
+			}
+			else {
+				ImGui::Text("Entities Random: "); ImGui::SameLine();
+				ImGui::Checkbox("##entitiesRandom", &entitiesRandom);
+
+				ImGui::Text("Depth: "); ImGui::SameLine();
+				ImGui::SliderInt("##depth", &depthSlider, 1, 100);
+			}
 		}
 
 		ImGui::Spacing();
