@@ -333,10 +333,10 @@ namespace eop {
 		std::vector<int> possibleCellIndexes = GetPossibleCellCollapses(district, entities, cells);
 
 		if (possibleCellIndexes.size() == 0 || collapsedCells.size() >= totalEntities || collapsedCells.size() >= cellsToCollapse) {
-			EOP_LOG("Collapsed: " << collapsedCells.size() << " / " << cellsToCollapse << "\n");
+			EOP_LOG("Collapsed Iteration " << iteration << ": " << collapsedCells.size() << " / " << totalEntities << " / " << cellsToCollapse << "\n");
 			return true;
 		}
-
+		
 		if (route.layer >= route.cellRoute.size()) {
 			route.cellRoute.push_back(0);
 		}
@@ -884,18 +884,6 @@ namespace eop {
 
 			int collapsedCellsCount = RunCollapses(district, entities, identifiers, originalEntities, cellsWorking, collapsedCells, defaultCollapsedCells, entityIdentifierCounts, iteration, totalEntities, cellsToCollapse, route, depth, fullRandom, entitiesRandom);
 			
-			EOP_LOG("Cell Route: ");
-			for (int i = 0; i < route.cellRoute.size(); i++) {
-				EOP_LOG(route.cellRoute[i] << ", ");
-			}
-			EOP_LOG("\n");
-
-			EOP_LOG("Entity Route: ");
-			for (int i = 0; i < route.entityRoute.size(); i++) {
-				EOP_LOG(route.entityRoute[i] << ", ");
-			}
-			EOP_LOG("\n---\n");
-
 			if (collapsedCellsCount > currentCollapsedCellsCount) {
 				cellsBest = cellsWorking;
 			
