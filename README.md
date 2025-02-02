@@ -24,4 +24,4 @@ Only windows_x86-64 is currently supported at this moment.
 
 It is all based around an "Excel Workbook (*.xlsx)" that you configure and run through the program outputting another workbook with the evaluated results inside.
 
-You can start with a template or an example under releases and then read the documentation on how to configure these to fit your needs.
+You can start with a template or an example under releases and then read the [documentation](https://samgeorgedixon.github.io/entity_organisation_program/) on how to configure these to fit your needs.
