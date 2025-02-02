@@ -70,32 +70,6 @@ project "entity_organisation_program-app"
         defines "EOP_DISABLE_LOGGING"
         links "OpenXLSX.lib"
 
-project "entity_organisation_program-console"
-    location "entity_organisation_program-console"
-    kind "ConsoleApp"
-
-    targetdir ("%{wks.location}/bin/%{prj.name}/" .. builddir)
-    objdir ("%{wks.location}/bin_int/%{prj.name}/" .. builddir)
-
-    files {
-        "%{prj.name}/src/**.cpp",
-        "%{prj.name}/src/**.h"
-    }
-    includedirs {
-        "%{prj.name}/src",
-        "entity_organisation_program/src"
-    }
-    libdirs {
-        "entity_organisation_program/vendor/OpenXLSX/build/lib"
-    }
-    links {
-        "entity_organisation_program"
-    }
-    filter "configurations:debug"
-        links "OpenXLSXd.lib"
-    filter "configurations:release"
-        links "OpenXLSX.lib"
-
 project "entity_organisation_program"
     location "entity_organisation_program"
     kind "StaticLib"
