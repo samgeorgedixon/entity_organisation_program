@@ -10,7 +10,7 @@ namespace app {
 	bool showImGui = true;
 
 	int widthPixels = 400;
-	int heightPixels = 245;
+	int heightPixels = 222;
 
 	std::string outputLine0 = "";
 	std::string outputLine1 = "";
@@ -229,18 +229,18 @@ namespace app {
 
 		ImGui::Spacing();
 		if (ImGui::CollapsingHeader("Advanced")) {
-			ImGui::Text("Full Random: "); ImGui::SameLine();
+			ImGui::Text("Full Random:     "); ImGui::SameLine();
 			ImGui::Checkbox("##fullRandom", &fullRandom);
 
 			if (fullRandom) {
-				ImGui::Text("Repeats: "); ImGui::SameLine();
+				ImGui::Text("Repeats:     "); ImGui::SameLine();
 				ImGui::SliderInt("##repeats", &repeatsSlider, 1, 100);
 			}
 			else {
 				ImGui::Text("Entities Random: "); ImGui::SameLine();
 				ImGui::Checkbox("##entitiesRandom", &entitiesRandom);
 
-				ImGui::Text("Depth: "); ImGui::SameLine();
+				ImGui::Text("Depth:       "); ImGui::SameLine();
 				ImGui::SliderInt("##depth", &depthSlider, 1, 100);
 			}
 		}
