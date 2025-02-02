@@ -232,7 +232,7 @@ namespace eop {
 
 		return entities;
 	}
-
+	
 	EOP_Config ImportEOP_ConfigXLSX(std::string filePath) {
 		EOP_Config eopConfig;
 		
