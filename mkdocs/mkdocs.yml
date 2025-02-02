@@ -1,0 +1,12 @@
+site_name: Entity Organisation Program
+site_author: Sam Dixon
+site_url: https://samgeorgedixon.github.io/entity_organisation_program
+
+nav:
+- Home: index.md
+
+theme:
+  name: readthedocs
+  highlightjs: true
+  hljs_languages:
+    - yaml

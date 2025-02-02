@@ -1,3 +1,0 @@
-# Entity Organisation Program -  Documentation
-
-
