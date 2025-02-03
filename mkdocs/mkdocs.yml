@@ -3,7 +3,9 @@ site_author: Sam Dixon
 site_url: https://samgeorgedixon.github.io/entity_organisation_program
 
 nav:
-- Home: index.md
+- Introduction: index.md
+- Configuration: configuration.md
+- Usage: usage.md
 
 theme:
   name: readthedocs
