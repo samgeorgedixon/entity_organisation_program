@@ -2,6 +2,14 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://samgeorgedixon.github.io/entity_organisation_program/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-03</lastmod>
+    </url>
+    <url>
+         <loc>https://samgeorgedixon.github.io/entity_organisation_program/configuration/</loc>
+         <lastmod>2025-02-03</lastmod>
+    </url>
+    <url>
+         <loc>https://samgeorgedixon.github.io/entity_organisation_program/usage/</loc>
+         <lastmod>2025-02-03</lastmod>
     </url>
 </urlset>
