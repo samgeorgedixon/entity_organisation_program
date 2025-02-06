@@ -1,6 +1,6 @@
 #include "evaluate.h"
 
-#include "random.h"
+#include "core/random.h"
 
 namespace eop {
 

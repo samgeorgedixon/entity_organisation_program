@@ -25,6 +25,7 @@ includes["imgui"] = "entity_organisation_program-app/vendor/imgui"
 includes["sdl"] = "entity_organisation_program-app/vendor/sdl/include"
 
 includes["OpenXLSX"] = "entity_organisation_program/vendor/OpenXLSX/build/include"
+includes["lua"] = "entity_organisation_program/vendor/lua/include"
 
 group "dependencies"
     include "entity_organisation_program-app/vendor/imgui/imgui"
@@ -48,18 +49,21 @@ project "entity_organisation_program-app"
     }
     libdirs {
         "%{prj.location}/vendor/sdl/lib/x64",
-        "entity_organisation_program/vendor/OpenXLSX/build/lib"
+        "entity_organisation_program/vendor/OpenXLSX/build/lib",
+        "entity_organisation_program/vendor/lua"
     }
     links {
         "entity_organisation_program",
         "imgui",
         "sdl2.lib",
         "sdl2main.lib",
+        "lua54.lib",
         "comctl32.lib"
     }
 
     postbuildcommands {
-		("{COPY} %{prj.location}vendor/sdl/lib/x64/SDL2.dll %{wks.location}bin/%{prj.name}/" .. builddir)
+		("{COPY} %{prj.location}vendor/sdl/lib/x64/SDL2.dll %{wks.location}bin/%{prj.name}/" .. builddir),
+		("{COPY} %{wks.location}entity_organisation_program/vendor/lua/lua54.dll %{wks.location}bin/%{prj.name}/" .. builddir)
 	}
 
     filter "configurations:debug"
@@ -83,5 +87,6 @@ project "entity_organisation_program"
     }
     includedirs {
         "%{prj.name}/src",
-        "%{includes.OpenXLSX}"
+        "%{includes.OpenXLSX}",
+        "%{includes.lua}"
     }

@@ -3,7 +3,6 @@
 
 #include <thread>
 
-//#define SDL_MAIN_HANDLED
 #include "sdl/SDL.h"
 #include "sdl/SDL_syswm.h"
 

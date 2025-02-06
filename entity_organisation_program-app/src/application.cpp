@@ -110,6 +110,8 @@ namespace app {
 		identifierBuffer[1] = 'a';
 		identifierBuffer[2] = 'm';
 		identifierBuffer[3] = 'e';
+
+		eop::ImportLuaConfig("", "");
 	}
 	
 	void Close() {

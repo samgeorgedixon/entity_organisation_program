@@ -1,7 +1,7 @@
 #pragma once
-#include "core.h"
+#include "core/core.h"
 
-#include "eop_config.h"
-#include "evaluate.h"
-#include "import_eop_config.h"
-#include "export_eop_config.h"
+#include "evaluate/eop_config.h"
+#include "evaluate/evaluate.h"
+#include "port/import_eop_config.h"
+#include "port/export_eop_config.h"
