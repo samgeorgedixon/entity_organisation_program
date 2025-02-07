@@ -111,7 +111,7 @@ namespace app {
 		identifierBuffer[2] = 'm';
 		identifierBuffer[3] = 'e';
 
-		eop::ImportLuaConfig("", "");
+		eop::ImportLuaConfig("N:/Programming/cpp/entity_organisation_program/examples_scripts/eop-config.lua", "");
 	}
 	
 	void Close() {

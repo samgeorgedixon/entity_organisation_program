@@ -2,13 +2,8 @@
 
 #include "OpenXLSX/OpenXLSX.hpp"
 
-extern "C" {
-
-#include "lua/lua.h"
-#include "lua/lauxlib.h"
-#include "lua/lualib.h"
-
-}
+#define SOL_ALL_SAFETIES_ON 1
+#include "sol/sol.hpp"
 
 namespace eop {
 
@@ -272,30 +267,11 @@ namespace eop {
 	}
 
 	EOP_Config ImportLuaConfig(std::string luaFilePath, std::string excelFilePath) {
-		std::string cmd = "a = 7 * 11";
+		sol::state lua;
+		lua.open_libraries(sol::lib::base);
 
-		lua_State* lua = luaL_newstate();
-		luaL_openLibs(lua);
-
-		int r = luaL_dostring(lua, cmd.c_str());
-
-		if (r != LUA_OK) {
-			EOP_LOG(lua_tostring(lua, -1));
-
-			return {};
-		}
-
-		lua_getglobal(lua, "a");
-
-		if (!lua_isnumber(lua, -1)) {
-			return {};
-		}
-
-		int a = lua_tonumber(lua, -1);
-
-		EOP_LOG(a);
-
-		lua_close(L);
+		lua.script("print('Hello from Lua.')");
+		EOP_LOG("\n");
 
 		return {};
 	}

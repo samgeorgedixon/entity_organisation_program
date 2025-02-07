@@ -26,6 +26,7 @@ includes["sdl"] = "entity_organisation_program-app/vendor/sdl/include"
 
 includes["OpenXLSX"] = "entity_organisation_program/vendor/OpenXLSX/build/include"
 includes["lua"] = "entity_organisation_program/vendor/lua/include"
+includes["sol2"] = "entity_organisation_program/vendor/sol2/include"
 
 group "dependencies"
     include "entity_organisation_program-app/vendor/imgui/imgui"
@@ -88,5 +89,6 @@ project "entity_organisation_program"
     includedirs {
         "%{prj.name}/src",
         "%{includes.OpenXLSX}",
-        "%{includes.lua}"
+        "%{includes.lua}",
+        "%{includes.sol2}"
     }
