@@ -2,6 +2,7 @@
 *.vcxproj
 *.user
 *.filters
+*.tmp
 
 /.vs
 

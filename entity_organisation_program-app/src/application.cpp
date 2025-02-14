@@ -10,14 +10,16 @@ namespace app {
 	bool showImGui = true;
 
 	int widthPixels = 400;
-	int heightPixels = 222;
+	int heightPixels = 250;
 
 	std::string outputLine0 = "";
 	std::string outputLine1 = "";
 
 	int bufferSize = 200;
-	char* configPathBuffer = new char[bufferSize];
-	char* configPathBufferCheck = new char[bufferSize];
+	char* luaConfigPathBuffer = new char[bufferSize];
+	char* luaConfigPathBufferCheck = new char[bufferSize];
+	char* spreadsheetPathBuffer = new char[bufferSize];
+	char* spreadsheetPathBufferCheck = new char[bufferSize];
 
 	char* identifierBuffer = new char[bufferSize];
 
@@ -59,12 +61,8 @@ namespace app {
 	}
 	
 	void RunConfig() {
-		eop::EOP_Config eop_config = eop::ImportEOP_ConfigXLSX(configPathBuffer);
-		if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {
-			outputLine1 = "Unable to Open File: " + std::string(configPathBuffer);
-			
-			runConfigFinished = true; return;
-		}
+		std::string importSpreadsheetFilePath = spreadsheetPathBuffer;
+		std::string exportSpreadsheetFilePath = std::string(spreadsheetPathBuffer).substr(0, std::string(spreadsheetPathBuffer).size() - 5) + "-org.xlsx";
 
 		int depth = 1;
 		if (fullRandom) {
@@ -74,16 +72,18 @@ namespace app {
 			depth = depthSlider;
 		}
 
-		eop::EvaluateEOP_Config(eop_config, depth, fullRandom, entitiesRandom);
-		
-		eop::PrintEOP_Config(eop_config, "name");
+		std::pair<bool, bool> res = eop::RunLuaConfig(luaConfigPathBuffer, importSpreadsheetFilePath, exportSpreadsheetFilePath, depth, fullRandom, entitiesRandom, identifierBuffer);
 
-		int outRes = eop::ExportEOP_ConfigXLSX(configPathBuffer, eop_config, identifierBuffer);
-		
-		if (!outRes) {
-			outputLine1 = "Unable to Write File: " + std::string(configPathBuffer);
+		if (!res.first) {
+			outputLine1 = "Unable to Open File: " + importSpreadsheetFilePath;
 			EOP_LOG(outputLine1 << "\n");
-		
+
+			runConfigFinished = true; return;
+		}
+		if (!res.second) {
+			outputLine1 = "Unable to Write File: " + exportSpreadsheetFilePath;
+			EOP_LOG(outputLine1 << "\n");
+
 			runConfigFinished = true; return;
 		}
 
@@ -102,16 +102,12 @@ namespace app {
 		ImGuiSetup(window, renderer);
 
 		for (int i = 0; i < bufferSize; i++) {
-			configPathBuffer[i]			= 0;
-			configPathBufferCheck[i]	= 0;
-			identifierBuffer[i]			= 0;
+			luaConfigPathBuffer[i] = 0;
+			luaConfigPathBufferCheck[i] = 0;
+			spreadsheetPathBuffer[i] = 0;
+			spreadsheetPathBufferCheck[i] = 0;
+			identifierBuffer[i] = 0;
 		}
-		identifierBuffer[0] = 'n';
-		identifierBuffer[1] = 'a';
-		identifierBuffer[2] = 'm';
-		identifierBuffer[3] = 'e';
-
-		eop::ImportLuaConfig("N:/Programming/cpp/entity_organisation_program/examples_scripts/eop-config.lua", "");
 	}
 	
 	void Close() {
@@ -169,22 +165,31 @@ namespace app {
 		}
 	}
 
-	void CheckConfigPathBufferChange() {
-		bool changed = false;
+	void CheckBufferChanges() {
+		bool luaConfigChanged = false;
+		bool spreadsheetChanged = false;
 		for (int i = 0; i < bufferSize; i++) {
-			if (configPathBuffer[i] != configPathBufferCheck[i]) {
-				changed = true; break;
+			if (luaConfigPathBuffer[i] != luaConfigPathBuffer[i]) {
+				luaConfigChanged = true; break;
+			}
+			if (spreadsheetPathBuffer[i] != spreadsheetPathBufferCheck[i]) {
+				spreadsheetChanged = true; break;
 			}
 		}
-		if (changed) {
+		if (luaConfigChanged) {
 			outputLine0 = "";
 			outputLine1 = "";
-			memcpy(configPathBufferCheck, configPathBuffer, bufferSize);
+			memcpy(luaConfigPathBufferCheck, luaConfigPathBuffer, bufferSize);
+		}
+		if (spreadsheetChanged) {
+			outputLine0 = "";
+			outputLine1 = "";
+			memcpy(spreadsheetPathBufferCheck, spreadsheetPathBuffer, bufferSize);
 		}
 	}
 
 	void Update() {
-		CheckConfigPathBufferChange();
+		CheckBufferChanges();
 	}
 
 	void RenderGUI() {
@@ -198,29 +203,51 @@ namespace app {
 		ImGui::Separator();
 
 		ImGui::Spacing();
-		ImGui::Text("Config File: "); ImGui::SameLine();
+		ImGui::Text("Lua Config:   "); ImGui::SameLine();
 
 		ImGui::PushItemWidth(widthPixels / 2);
-		ImGui::InputText("##config_file", configPathBuffer, bufferSize); ImGui::SameLine();
+		ImGui::InputText("##luaConfig", luaConfigPathBuffer, bufferSize); ImGui::SameLine();
 		ImGui::PopItemWidth();
 
-		if (ImGui::Button("Open...")) {
-			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0").c_str();
+		if (ImGui::Button("Open...##luaConfigOpen")) {
+			std::string filePath = OpenFileDialog("Lua Config (*.lua)\0 * .lua\0").c_str();
 
 			if (filePath.size() <= bufferSize) {
 				int i = 0;
 				for (i; i < filePath.size(); i++) {
-					configPathBuffer[i] = filePath[i];
+					luaConfigPathBuffer[i] = filePath[i];
 				}
 				while (i < bufferSize) {
-					configPathBuffer[i] = 0;
+					luaConfigPathBuffer[i] = 0;
 					i++;
 				}
 			}
 		}
 
 		ImGui::Spacing();
-		ImGui::Text("Identifier:  "); ImGui::SameLine();
+		ImGui::Text("Spreadsheet:  "); ImGui::SameLine();
+
+		ImGui::PushItemWidth(widthPixels / 2);
+		ImGui::InputText("##spreadsheet", spreadsheetPathBuffer, bufferSize); ImGui::SameLine();
+		ImGui::PopItemWidth();
+
+		if (ImGui::Button("Open...##spreadsheetOpen")) {
+			std::string filePath = OpenFileDialog("Excel Workbook (*.xlsx)\0 * .xlsx\0").c_str();
+
+			if (filePath.size() <= bufferSize) {
+				int i = 0;
+				for (i; i < filePath.size(); i++) {
+					spreadsheetPathBuffer[i] = filePath[i];
+				}
+				while (i < bufferSize) {
+					spreadsheetPathBuffer[i] = 0;
+					i++;
+				}
+			}
+		}
+
+		ImGui::Spacing();
+		ImGui::Text("Identifiers:  "); ImGui::SameLine();
 
 		ImGui::PushItemWidth(widthPixels / 2);
 		ImGui::InputText("##identifier", identifierBuffer, bufferSize); ImGui::SameLine();

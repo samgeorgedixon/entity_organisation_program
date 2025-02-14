@@ -64,7 +64,10 @@ project "entity_organisation_program-app"
 
     postbuildcommands {
 		("{COPY} %{prj.location}vendor/sdl/lib/x64/SDL2.dll %{wks.location}bin/%{prj.name}/" .. builddir),
-		("{COPY} %{wks.location}entity_organisation_program/vendor/lua/lua54.dll %{wks.location}bin/%{prj.name}/" .. builddir)
+		("{COPY} %{wks.location}entity_organisation_program/vendor/lua/lua54.dll %{wks.location}bin/%{prj.name}/" .. builddir),
+        
+		("{COPY} %{wks.location}examples_scripts/eop.lua %{wks.location}bin/%{prj.name}/" .. builddir),
+		("{COPY} %{wks.location}examples_scripts/eop.lua %{wks.location}%{prj.name}/")
 	}
 
     filter "configurations:debug"

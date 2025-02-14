@@ -172,7 +172,6 @@ namespace eop {
 		if (filePath == "") {
 			return 0;
 		}
-		filePath = filePath.substr(0, filePath.size() - 5) + "-org.xlsx";
 
 		OpenXLSX::XLDocument doc;
 
