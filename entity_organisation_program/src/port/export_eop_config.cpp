@@ -7,12 +7,14 @@ namespace eop {
 	std::vector<int> GetIdentifierIndexes(const EOP_Config& eopConfig, std::string identifiers) {
 		std::vector<int> identifiersIndexes;
 
-		identifiers.erase(std::remove(identifiers.begin(), identifiers.end(), ' '), identifiers.end());
+		identifiers = Trim(identifiers);
 		std::stringstream ss(identifiers);
 
 		int j = 0;
 		std::string token;
 		while (getline(ss, token, ',')) {
+			token = Trim(token);
+
 			for (int i = 0; i < eopConfig.entities.identifiers.size(); i++) {
 				if (Low(eopConfig.entities.identifiers[i].name) == Low(token)) {
 					identifiersIndexes.push_back(i);

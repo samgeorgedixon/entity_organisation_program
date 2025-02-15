@@ -7,7 +7,7 @@ namespace eop {
 	std::vector<vec2> FindCellConditions(std::string value) {
 		std::vector<vec2> cellConditions;
 
-		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
+		value = Trim(value);
 		std::stringstream ss(value);
 
 		std::string token;
@@ -22,7 +22,7 @@ namespace eop {
 	std::vector<int> FindZoneConditions(std::string value) {
 		std::vector<int> zoneConditions;
 
-		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
+		value = Trim(value);
 		std::stringstream ss(value);
 
 		std::string token;
@@ -38,7 +38,7 @@ namespace eop {
 	std::vector<value_pair> FindIdentifierPairs(std::string value, char bound) {
 		std::vector<value_pair> collapsedIdentifiers;
 
-		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
+		value = Trim(value);
 		std::stringstream ss(value);
 
 		std::string token;
@@ -53,7 +53,7 @@ namespace eop {
 	std::vector<std::string> FindCommaValues(std::string value) {
 		std::vector<std::string> values;
 
-		value.erase(std::remove(value.begin(), value.end(), ' '), value.end());
+		value = Trim(value);
 		std::stringstream ss(value);
 
 		std::string token;

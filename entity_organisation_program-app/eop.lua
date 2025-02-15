@@ -87,13 +87,17 @@ function eop.CheckEqualString(value, equal)
     return false
 end
 
+function eop.Trim(str)
+    return string.gsub(str, '^%s*(.-)%s*$', '%1')
+end
+
 function eop.StringToIntList(value)
     local intList = {}
     if value == "" then
         return intList
     end
 
-    value = value:gsub(" ", "")
+    value = eop.Trim(value)
 
     for token in value:gmatch("[^,]+") do
         table.insert(intList, tonumber(token))
@@ -111,13 +115,13 @@ function eop.StringToStringList(value)
         return values
     end
 
-    value = value:gsub(" ", "")
+    value = eop.Trim(value)
 
     for token in value:gmatch("[^,]+") do
-        table.insert(values, token)
+        values[#values + 1] = eop.Trim(token)
     end
     if #values == 0 and #value > 0 then
-        table.insert(values, value)
+        values[#values + 1] = eop.Trim(value)
     end
 
     return values
@@ -129,13 +133,13 @@ function eop.StringSquareBracketToStringList(value)
         return values
     end
 
-    value = value:gsub(" ", "")
+    value = eop.Trim(value)
 
     for token in value:gmatch("[^%[%]]+") do
-        table.insert(values, token)
+        values[#values + 1] = eop.Trim(token)
     end
     if #values == 0 and #value > 0 then
-        table.insert(values, value)
+        values[#values + 1] = eop.Trim(value)
     end
 
     return values
@@ -147,7 +151,7 @@ function eop.StringToVec2List(value)
         return vec2List
     end
 
-    value = value:gsub(" ", "")
+    value = eop.Trim(value)
 
     local i = 1
     for token in value:gmatch("%b()") do
@@ -170,15 +174,15 @@ function eop.StringToValuePairList(value, bound)
         return valuePairList
     end
 
-    value = value:gsub(" ", "")
+    value = eop.Trim(value)
 
     local i = 1
     for token in value:gmatch("[^" .. bound .. "]+") do
         local name, val = token:match("^.(.-),(.*)")
  
         valuePairList[i] = {}
-        valuePairList[i]["name"] = name
-        valuePairList[i]["value"] = val
+        valuePairList[i]["name"] = eop.Trim(name)
+        valuePairList[i]["value"] = eop.Trim(val)
 
         i = i + 1
     end

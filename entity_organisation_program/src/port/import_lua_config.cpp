@@ -68,7 +68,7 @@ namespace eop {
 	std::vector<std::string> lua_ConvertVectorStringTable(const sol::table& table) {
 		std::vector<std::string> converted;
 		for (int i = 0; i < table.size(); i++) {
-			converted.push_back(table[i + 1].get<std::string>());
+			converted.push_back(Trim(table[i + 1].get<std::string>()));
 		}
 		return converted;
 	}
@@ -82,7 +82,7 @@ namespace eop {
 	std::vector<value_pair> lua_ConvertVectorValuePairTable(const sol::table& table) {
 		std::vector<value_pair> converted;
 		for (int i = 0; i < table.size(); i++) {
-			converted.push_back({ table[i + 1]["name"].get<std::string>(), table[i + 1]["value"].get<std::string>() });
+			converted.push_back({ Trim(table[i + 1]["name"].get<std::string>()), Trim(table[i + 1]["value"].get<std::string>()) });
 		}
 		return converted;
 	}
@@ -105,7 +105,7 @@ namespace eop {
 		for (int i = 0; i < zones.size(); i++) {
 			Zone zone;
 
-			zone.name = zones[i + 1]["name"];
+			zone.name = Trim(zones[i + 1]["name"]);
 
 			zone.cells = lua_ConvertVectorVec2Table(zones[i + 1]["cells"].get<sol::table>());
 			zone.collapsedIdentifiers = lua_ConvertVectorValuePairTable(zones[i + 1]["collapsedIdentifiers"].get<sol::table>());
@@ -138,7 +138,7 @@ namespace eop {
 			for (int j = 0; j < identifiersValues.size(); j++) {
 				IdentifierEntry identifierEntry;
 
-				identifierEntry.value = identifiersValues[j + 1]["value"].get<std::string>();
+				identifierEntry.value = Trim(identifiersValues[j + 1]["value"].get<std::string>());
 				identifierEntry.conditions = lua_ConvertVectorStringTable(identifiersValues[j + 1]["conditions"].get<sol::table>());
 
 				entity.identifiersValues.push_back(identifierEntry);
@@ -152,7 +152,7 @@ namespace eop {
 		for (int i = 0; i < identifiers.size(); i++) {
 			Identifier identifier;
 
-			identifier.name = identifiers[i + 1]["name"].get<std::string>();
+			identifier.name = Trim(identifiers[i + 1]["name"].get<std::string>());
 			identifier.iterationCount = identifiers[i + 1]["iterationCount"].get<int>();
 
 			identifier.relitiveCellConditions = lua_ConvertVectorVec2Table(identifiers[i + 1]["relitiveCellConditions"].get<sol::table>());
@@ -161,14 +161,12 @@ namespace eop {
 			eopConfig.entities.identifiers.push_back(identifier);
 		}
 
-		std::vector<value_pair> sp = lua_ConvertVectorValuePairTable(eopConfigTable["district"]["iterations"][1]["disabledIdentifiers"]);
-
 		// Import Iterations
 		const sol::table& iterations = eopConfigTable["district"]["iterations"].get<sol::table>();
 		for (int i = 0; i < iterations.size(); i++) {
 			Iteration iteration;
 
-			iteration.name = iterations[i + 1]["name"].get<std::string>();
+			iteration.name = Trim(iterations[i + 1]["name"].get<std::string>());
 
 			iteration.hide = iterations[i + 1]["hide"].get_or(false);
 			iteration.disableDropIterationCount = iterations[i + 1]["disableDropIterationCount"].get_or(false);

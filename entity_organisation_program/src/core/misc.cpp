@@ -21,5 +21,16 @@ namespace eop {
 		}
 		return output;
 	}
+	std::string Trim(std::string str, std::string whitespace) {
+		int strBegin = str.find_first_not_of(whitespace);
 
+		if (strBegin == std::string::npos) {
+			return "";
+		}
+
+		int strEnd = str.find_last_not_of(whitespace);
+		int strRange = strEnd - strBegin + 1;
+
+		return str.substr(strBegin, strRange);
+	}
 }
