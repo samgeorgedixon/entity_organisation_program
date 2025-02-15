@@ -4,6 +4,9 @@ function eop.GetDefaultConfig()
     config = {}
     
     config["district"] = {};
+    config["district"]["rows"] = 0;
+    config["district"]["cols"] = 0;
+
     config["district"]["occupiableCells"] = {};
     config["district"]["zones"] = {};
     config["district"]["iterations"] = {};
@@ -25,6 +28,8 @@ end
 function eop.CheckZoneNil(zone)
     if zone == nil then
         zone = {}
+        zone["name"] = ""
+
         zone["cells"] = {}
         zone["collapsedIdentifiers"] = {}
         zone["positiveZoneIdentifierConditions"] = {}
@@ -35,6 +40,8 @@ end
 function eop.CheckEntityNil(entity)
     if entity == nil then
         entity = {}
+        entity["count"] = 0
+
         entity["entityCellConditions"] = {}
         entity["entityZoneConditions"] = {}
         entity["identifiersValues"] = {}
@@ -44,6 +51,9 @@ end
 function eop.CheckIdentifierNil(identifier)
     if identifier == nil then
         identifier = {}
+        identifier["name"] = ""
+        identifier["iterationCount"] = 0
+        
         identifier["relitiveCellConditions"] = {}
         identifier["relitiveZoneConditions"] = {}
     end
@@ -52,6 +62,10 @@ end
 function eop.CheckIterationNil(iteration)
     if iteration == nil then
         iteration = {}
+        iteration["name"] = ""
+        iteration["hide"] = false
+        iteration["disableDropIterationCount"] = false
+
         iteration["disabledCells"] = {}
         iteration["disabledZones"] = {}
         iteration["disabledIdentifiers"] = {}

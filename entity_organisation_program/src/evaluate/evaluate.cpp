@@ -1,17 +1,6 @@
 #include "evaluate.h"
 
-#include "core/random.h"
-
 namespace eop {
-
-	std::string Low(std::string value) {
-		std::string output = "";
-
-		for (int i = 0; i < value.size(); i++) {
-			output.push_back(tolower(value[i]));
-		}
-		return output;
-	}
 
 	void DropEntityCount(const District& district, std::vector<Entity>& entities, std::vector<bool>& cells, const std::vector<int>& collapsedCells, int entity) {
 		int cellCount = district.rows * district.cols;
@@ -685,9 +674,9 @@ namespace eop {
 		for (int i = 0; i < district.zones.size(); i++) {
 			std::vector<int> restrictedEntities;
 			std::vector<int> allowedEntities;
-
+			
 			for (int l = 0; l < entityCount; l++) {
-				for (int j = 0; j < district.zones[i].positiveZoneIdentifierConditions.size(); j++) {
+				for (int j = 0; j < district.zones[i].negativeZoneIdentifierConditions.size(); j++) {
 					for (int k = 0; k < district.zones[i].negativeZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = district.zones[i].negativeZoneIdentifierConditions[j][k];
 
@@ -696,6 +685,8 @@ namespace eop {
 							break;
 						}
 					}
+				}
+				for (int j = 0; j < district.zones[i].positiveZoneIdentifierConditions.size(); j++) {
 					for (int k = 0; k < district.zones[i].positiveZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = district.zones[i].positiveZoneIdentifierConditions[j][k];
 

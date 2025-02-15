@@ -14,7 +14,7 @@ namespace eop {
 		std::string token;
 		while (getline(ss, token, ',')) {
 			for (int i = 0; i < eopConfig.entities.identifiers.size(); i++) {
-				if (eopConfig.entities.identifiers[i].name == token) {
+				if (Low(eopConfig.entities.identifiers[i].name) == Low(token)) {
 					identifiersIndexes.push_back(i);
 				}
 			}
@@ -23,7 +23,7 @@ namespace eop {
 
 		if (identifiers != "" && j == 0) {
 			for (int i = 0; i < eopConfig.entities.identifiers.size(); i++) {
-				if (eopConfig.entities.identifiers[i].name == token) {
+				if (Low(eopConfig.entities.identifiers[i].name) == Low(token)) {
 					identifiersIndexes.push_back(i);
 				}
 			}

@@ -10,6 +10,4 @@ namespace eop {
 
 	EOP_Config ImportEOP_ConfigXLSX(std::string filePath);
 
-	std::pair<bool, bool> RunLuaConfig(std::string luaPresetFilePath, std::string importSpreadsheetFilePath, std::string exportSpreadsheetFilePath, int depth, bool fullRandom, bool entitiesRandom, std::string identifiers);
-
 }
