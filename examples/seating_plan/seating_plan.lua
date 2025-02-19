@@ -4,8 +4,8 @@ eop_config = eop.GetDefaultConfig()
 eop_config["district"]["iterations"][1] = eop.CheckIterationNil()
 eop_config["district"]["iterations"][1]["name"] = "seating_plan"
 
--- Import Room Sheet
-roomSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "room")
+-- Import Room Sheets
+roomSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "room")
 
 eop_config["district"]["rows"] = #roomSheet - 1
 eop_config["district"]["cols"] = #roomSheet[1]
@@ -32,7 +32,7 @@ for i = 1, #roomSheet - 1 do
 end
 
 -- Import People Sheet
-peopleSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "people")
+peopleSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "people")
 
 -- Import Identifiers
 eop_config["entities"]["identifiers"][1] = eop.CheckIdentifierNil()
@@ -75,7 +75,7 @@ for i = 1, #peopleSheet - 3 do
 end
 
 -- Import Zones Sheet
-zonesSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "zones")
+zonesSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "zones")
 
 for i = 1, #zonesSheet - 3 do
     if zonesSheet[i + 3][1] ~= "" then
@@ -98,4 +98,37 @@ for i = 1, #zonesSheet - 3 do
     end
 end
 
-eop.EvaluateEOP_Config(eop_config)
+eop_config = eop.EvaluateEOP_Config(eop_config)
+
+-- Export Iterations
+identifierIndexes = eop.GetIdentifierIndexes(eop_config, eop.identifiers)
+
+iterationSheet = {}
+iterationSheet[1] = eop.CheckTableNil(iterationSheet[1])
+iterationSheet[1][1] = "Organised Seating Plan"
+
+iteration = eop_config["district"]["iterations"][1]
+
+for j = 1, eop_config["district"]["rows"] do
+    for k = 1, eop_config["district"]["cols"] do
+        local data = ""
+        local entityId = iteration["cells"][(((j - 1) * eop_config["district"]["cols"]) + k - 1) + 1]
+
+        if entityId == -1 then
+            data = ""
+        elseif #identifierIndexes == 0 then
+            data = tostring(entityId)
+        else
+            for l = 1, #identifierIndexes - 1 do
+                data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[l]]["value"]
+                data = data .. ", "
+            end
+            data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[#identifierIndexes]]["value"]
+        end
+
+        iterationSheet[j + 1] = eop.CheckTableNil(iterationSheet[j + 1])
+        iterationSheet[j + 1][k] = data
+    end
+end
+
+eop.ExportSheetTable(eop.exportSpreadsheetFilePath, "seating_plan", iterationSheet)

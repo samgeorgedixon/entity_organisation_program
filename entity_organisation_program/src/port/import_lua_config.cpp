@@ -5,11 +5,13 @@
 #define SOL_ALL_SAFETIES_ON 1
 #include "sol/sol.hpp"
 
+#include "export_eop_config.h"
+
 namespace eop {
 
 	std::vector<std::vector<std::string>> ImportSheetTable(std::string filePath, std::string sheetName) {
 		std::vector<std::vector<std::string>> table;
-		
+
 		std::ifstream file;
 		file.open(filePath);
 
@@ -20,7 +22,7 @@ namespace eop {
 			return {};
 		}
 		file.close();
-
+		
 		OpenXLSX::XLDocument doc;
 		doc.open(filePath);
 
@@ -39,7 +41,6 @@ namespace eop {
 		rowCount = i;
 		for (i = 0; i < sheet.columnCount(); i++) {
 			if (sheet.cell(1, i + 1).value().getString()[0] == '-') {
-
 				break;
 			}
 		}
@@ -56,6 +57,46 @@ namespace eop {
 		doc.close();
 
 		return table;
+	}
+
+	void ExportSheetTable(std::string filePath, std::string sheetName, const sol::table& table) {
+		OpenXLSX::XLDocument doc;
+
+		std::ifstream file;
+		file.open(filePath);
+
+		if (file.good()) {
+			file.close();
+			doc.open(filePath);
+		}
+		else {
+			file.close();
+			doc.create(filePath);
+		}
+
+		OpenXLSX::XLWorkbook wbk = doc.workbook();
+
+		OpenXLSX::XLWorksheet sheet;
+		if (!wbk.sheetExists(sheetName)) {
+			wbk.addWorksheet(sheetName);
+		}
+		sheet = wbk.sheet(sheetName);
+
+		for (int i = 0; i < table.size(); i++) {
+			const sol::table& row = table[i + 1].get<sol::table>();
+
+			for (int j = 0; j < row.size(); j++) {
+				sheet.cell(i + 1, j + 1).value() = row[j + 1].get<std::string>();
+			}
+		}
+
+		try {
+			doc.save();
+		}
+		catch (...) {
+			EOP_LOG("Unable to Write File : " << filePath);
+		}
+		doc.close();
 	}
 
 	std::vector<int> lua_ConvertVectorIntTable(const sol::table& table) {
@@ -198,6 +239,17 @@ namespace eop {
 		return eopConfig;
 	}
 
+	sol::table lua_AddEOP_ConfigResults(const EOP_Config& eop_config, const sol::table& eopConfigTable) {
+		sol::table resultEOPConfigTable = eopConfigTable;
+
+		for (int i = 0; i < eop_config.district.iterations.size(); i++) {
+			resultEOPConfigTable["district"]["iterations"][i + 1]["zoneCollapsedIdentifiers"] = eop_config.district.iterations[i].zoneCollapsedIdentifiers;
+			resultEOPConfigTable["district"]["iterations"][i + 1]["cells"] = eop_config.district.iterations[i].cells;
+		}
+
+		return resultEOPConfigTable;
+	}
+
 	bool m_importResult = true, m_exportResult = true;
 
 	std::string m_importSpreadsheetFilePath = "", m_exportSpreadsheetFilePath = "";
@@ -206,22 +258,18 @@ namespace eop {
 	int m_depth = 1;
 	bool m_fullRandom = false, m_entitiesRandom = true;
 
-	void lua_EvaluateEOP_Config(sol::table eopConfigTable) {
+	sol::table lua_EvaluateEOP_Config(const sol::table& eopConfigTable) {
 		EOP_Config eop_config = lua_ConvertEOP_ConfigTable(eopConfigTable);
 
 		if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {
-			m_importResult = false; return;
+			m_importResult = false; return eopConfigTable;
 		}
 
 		EvaluateEOP_Config(eop_config, m_depth, m_fullRandom, m_entitiesRandom);
 
 		PrintEOP_Config(eop_config, m_identifiers);
-
-		int outRes = ExportEOP_ConfigXLSX(m_exportSpreadsheetFilePath, eop_config, m_identifiers);
-
-		if (!outRes) {
-			m_exportResult = false; return;
-		}
+		
+		return lua_AddEOP_ConfigResults(eop_config, eopConfigTable);
 	}
 
 	std::pair<bool, bool> RunLuaConfig(std::string luaConfigFilePath, std::string importSpreadsheetFilePath, std::string exportSpreadsheetFilePath, int depth, bool fullRandom, bool entitiesRandom, std::string identifiers) {
@@ -238,9 +286,13 @@ namespace eop {
 
 		lua.require_file("eop", "eop.lua");
 
-		lua["eop"]["spreadsheetFilePath"] = importSpreadsheetFilePath;
+		lua["eop"]["importSpreadsheetFilePath"] = importSpreadsheetFilePath;
+		lua["eop"]["exportSpreadsheetFilePath"] = exportSpreadsheetFilePath;
+
+		lua["eop"]["identifiers"] = identifiers;
 
 		lua["eop"]["ImportSheetTable"] = &ImportSheetTable;
+		lua["eop"]["ExportSheetTable"] = &ExportSheetTable;
 		lua["eop"]["EvaluateEOP_Config"] = &lua_EvaluateEOP_Config;
 
 		m_importResult = true;

@@ -90,6 +90,9 @@ end
 function eop.Trim(str)
     return string.gsub(str, '^%s*(.-)%s*$', '%1')
 end
+function eop.Low(str)
+    return str:lower()
+end
 
 function eop.StringToIntList(value)
     local intList = {}
@@ -178,6 +181,7 @@ function eop.StringToValuePairList(value, bound)
 
     local i = 1
     for token in value:gmatch("[^" .. bound .. "]+") do
+        token = eop.Trim(token)
         local name, val = token:match("^.(.-),(.*)")
  
         valuePairList[i] = {}
@@ -188,6 +192,39 @@ function eop.StringToValuePairList(value, bound)
     end
 
     return valuePairList
+end
+
+function eop.GetIdentifierIndexes(eopConfig, identifiers)
+    local identifiersIndexes = {}
+
+    if identifiers == "" then
+        return identifierIndexes
+    end
+
+    identifiers = eop.Trim(identifiers)
+
+    local j = 0
+    local found = false
+
+    for token in identifiers:gmatch("[^,]+") do
+        token = eop.Trim(token)
+
+        for i, identifier in ipairs(eopConfig["entities"]["identifiers"]) do
+            if eop.Low(identifier["name"]) == eop.Low(token) then
+                table.insert(identifiersIndexes, i)
+                found = true
+            end
+        end
+        j = j + 1
+    end
+    if identifiers ~= "" and j == 0 and not found then
+        for i, identifier in ipairs(eopConfig["entities"]["identifiers"]) do
+            if eop.Low(identifier["name"]) == eop.Low(identifiers) then
+                table.insert(identifiersIndexes, i)
+            end
+        end
+    end
+    return identifiersIndexes
 end
 
 return eop

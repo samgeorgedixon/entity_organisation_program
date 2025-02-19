@@ -1,7 +1,7 @@
 eop_config = eop.GetDefaultConfig()
 
 -- Import District Sheet
-districtSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "district")
+districtSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "district")
 
 eop_config["district"]["rows"] = #districtSheet - 1
 eop_config["district"]["cols"] = #districtSheet[1]
@@ -13,7 +13,7 @@ for i = 1, #districtSheet - 1 do
         if districtSheet[i + 1][j] ~= "" then
             eop_config["district"]["occupiableCells"][i][j] = true            
             
-            local zoneIndex = tonumber(districtSheet[i + 1][j]) + 1
+            local zoneIndex = tonumber(districtSheet[i + 1][j])
             local zone = eop.CheckZoneNil(eop_config["district"]["zones"][zoneIndex])
 
             zone["cells"][#zone["cells"] + 1] = {}
@@ -28,7 +28,7 @@ for i = 1, #districtSheet - 1 do
 end
 
 -- Import Entities Sheet
-entitiesSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "entities")
+entitiesSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "entities")
 
 for i = 1, #entitiesSheet - 4 do
     if entitiesSheet[i + 4][1] ~= "" then
@@ -57,7 +57,7 @@ for i = 1, #entitiesSheet - 4 do
 end
 
 -- Import Identifiers Sheet
-identifiersSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "identifiers")
+identifiersSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "identifiers")
 
 for i = 1, #identifiersSheet - 2 do
     if identifiersSheet[i + 2][1] ~= "" then
@@ -76,7 +76,7 @@ for i = 1, #identifiersSheet - 2 do
 end
 
 -- Import Iterations Sheet
-iterationsSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "iterations")
+iterationsSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "iterations")
 
 for i = 1, #iterationsSheet - 2 do
     if iterationsSheet[i + 2][1] ~= "" then
@@ -128,15 +128,9 @@ for i = 1, #iterationsSheet - 2 do
         while j <= #carriedIdentifiersStringList do
             local first, second = carriedIdentifiersStringList[j]:match("([^,]*),?(.*)")
 
-            print(first)
-            print(second)
-            
             iteration["carriedIdentifiers"][j] = {}
             iteration["carriedIdentifiers"][j][1] = first
             iteration["carriedIdentifiers"][j][2] = eop.StringToValuePairList(second, ")")
-
-            print(iteration["carriedIdentifiers"][j][2][1]["name"])
-            print(iteration["carriedIdentifiers"][j][2][1]["value"])
 
             j = j + 1
         end
@@ -148,13 +142,13 @@ for i = 1, #iterationsSheet - 2 do
 end
 
 -- Import Zones Sheet
-zonesSheet = eop.ImportSheetTable(eop.spreadsheetFilePath, "zones")
+zonesSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "zones")
 
 for i = 1, #zonesSheet - 4 do
     if zonesSheet[i + 4][1] ~= "" then
         local zoneIndex = tonumber(zonesSheet[i + 4][1])
 
-        local zone = eop.CheckZoneNil(eop_config["district"]["zones"][zoneIndex + 1])
+        local zone = eop.CheckZoneNil(eop_config["district"]["zones"][zoneIndex])
 
         zone["id"] = zoneIndex
         zone["name"] = zonesSheet[i + 4][2]
@@ -169,8 +163,94 @@ for i = 1, #zonesSheet - 4 do
 	        j = j + 2
         end
 
-        eop_config["district"]["zones"][zoneIndex + 1] = zone
+        eop_config["district"]["zones"][zoneIndex] = zone
     end
 end
 
-eop.EvaluateEOP_Config(eop_config)
+eop_config = eop.EvaluateEOP_Config(eop_config)
+
+-- Export Zones
+zonesSheet = {}
+
+zonesSheet[1] = eop.CheckTableNil(zonesSheet[1])
+zonesSheet[2] = eop.CheckTableNil(zonesSheet[2])
+zonesSheet[3] = eop.CheckTableNil(zonesSheet[3])
+
+zonesSheet[1][1] = "Organised Zones"
+zonesSheet[2][1] = "ID"
+zonesSheet[2][2] = "Name"
+zonesSheet[2][3] = "Collapsed Identifiers"
+
+zonesSheet[3][1] = ""
+zonesSheet[3][2] = ""
+
+local offset = 0
+for i = 1, #eop_config["district"]["iterations"] do
+    local iteration = eop_config["district"]["iterations"][i]
+
+    if iteration["hide"] == false then
+        zonesSheet[3][i + 2 - offset] = iteration["name"]
+    else
+        offset = offset + 1
+    end
+end
+
+for i = 1, #eop_config["district"]["zones"] do
+    local zone = eop_config["district"]["zones"][i]
+
+    zonesSheet[i + 3] = eop.CheckTableNil(zonesSheet[i + 3])
+
+    zonesSheet[i + 3][1] = tostring(i)
+    zonesSheet[i + 3][2] = zone["name"]
+
+    local offset = 0
+    for j = 1, #eop_config["district"]["iterations"] do
+        local iteration = eop_config["district"]["iterations"][j]
+
+        if iteration["hide"] == false then
+            zonesSheet[i + 3][j + 2 - offset] = iteration["zoneCollapsedIdentifiers"][i]
+        else
+            offset = offset + 1
+        end
+    end
+end
+
+eop.ExportSheetTable(eop.exportSpreadsheetFilePath, "zones", zonesSheet)
+
+-- Export Iterations
+identifierIndexes = eop.GetIdentifierIndexes(eop_config, eop.identifiers)
+
+for i = 1, #eop_config["district"]["iterations"] do
+    local iteration = eop_config["district"]["iterations"][i]
+    
+    if iteration["hide"] == false then
+        local iterationSheet = {}
+        
+        iterationSheet[1] = eop.CheckTableNil(iterationSheet[1])
+        iterationSheet[1][1] = "Organisation of Entities: " .. iteration["name"]
+        
+        for j = 1, eop_config["district"]["rows"] do
+            for k = 1, eop_config["district"]["cols"] do
+                local data = ""
+
+                local entityId = iteration["cells"][(((j - 1) * eop_config["district"]["cols"]) + k - 1) + 1]
+
+                if entityId == -1 then
+                    data = ""
+                elseif #identifierIndexes == 0 then
+                    data = tostring(entityId)
+                else
+                    for l = 1, #identifierIndexes - 1 do
+                        data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[l]]["value"]
+                        data = data .. ", "
+                    end
+
+                    data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[#identifierIndexes]]["value"]
+                end
+                iterationSheet[j + 1] = eop.CheckTableNil(iterationSheet[j + 1])
+                iterationSheet[j + 1][k] = data
+            end
+        end
+        eop.ExportSheetTable(eop.exportSpreadsheetFilePath, iteration["name"], iterationSheet)
+    end
+end
