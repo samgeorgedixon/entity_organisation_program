@@ -18,6 +18,16 @@ function eop.GetDefaultConfig()
     return config
 end
 
+function eop.ForEachItemRun(list, func, startIndex)
+    local retList = {}
+
+    for i = startIndex, #list do
+        retList[#retList + 1] = func(list[i], i, startIndex)
+    end
+    
+    return retList
+end
+
 function eop.CheckTableNil(table)
     if table == nil then
         table = {}

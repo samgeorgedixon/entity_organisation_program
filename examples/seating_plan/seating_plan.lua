@@ -1,134 +1,169 @@
 eop_config = eop.GetDefaultConfig()
 
--- Set Iteration
-eop_config["district"]["iterations"][1] = eop.CheckIterationNil()
-eop_config["district"]["iterations"][1]["name"] = "seating_plan"
+sheets = {
+    room    = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "room"),
+    people    = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "people"),
+    zones = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "zones"),
+}
 
--- Import Room Sheets
-roomSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "room")
+-- Importing
 
-eop_config["district"]["rows"] = #roomSheet - 1
-eop_config["district"]["cols"] = #roomSheet[1]
+zoneCells = {}
+function GetOccupiableCells(row, index, startIndex)
+    local occupiableCellsRow = {}
 
-for i = 1, #roomSheet - 1 do
-    eop_config["district"]["occupiableCells"][i] = {}
-
-    for j = 1, #roomSheet[2] do
-        if roomSheet[i + 1][j] ~= "" then
-            eop_config["district"]["occupiableCells"][i][j] = true
+    for i = 1, #row do
+        if row[i] ~= "" then
+            occupiableCellsRow[i] = true
             
-            local zoneIndex = tonumber(roomSheet[i + 1][j])
-            local zone = eop.CheckZoneNil(eop_config["district"]["zones"][zoneIndex])
+            local zoneIndex = tonumber(row[i])
+            zoneCells[zoneIndex] = eop.CheckTableNil(zoneCells[zoneIndex])
 
-            zone["cells"][#zone["cells"] + 1] = {}
-            zone["cells"][#zone["cells"]]["x"] = j - 1
-            zone["cells"][#zone["cells"]]["y"] = i - 1
-
-            eop_config["district"]["zones"][zoneIndex] = zone
+            zoneCells[zoneIndex][#zoneCells[zoneIndex] + 1] = {}
+            zoneCells[zoneIndex][#zoneCells[zoneIndex]]["x"] = i - 1
+            zoneCells[zoneIndex][#zoneCells[zoneIndex]]["y"] = index - startIndex
         else
-            eop_config["district"]["occupiableCells"][i][j] = false
+            occupiableCellsRow[i] = false
         end
     end
+
+    return occupiableCellsRow
 end
 
--- Import People Sheet
-peopleSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "people")
+function GetIdentifiers(row)
+    local identifiers = {}
 
--- Import Identifiers
-eop_config["entities"]["identifiers"][1] = eop.CheckIdentifierNil()
-eop_config["entities"]["identifiers"][1]["name"] = "name"
-eop_config["entities"]["identifiers"][1]["relitiveCellConditions"] = eop.StringToVec2List(peopleSheet[3][2])
+    identifiers[1] = eop.CheckIdentifierNil()
+    identifiers[1]["name"] = "name"
+    identifiers[1]["relitiveCellConditions"] = eop.StringToVec2List(row[2])
 
-for i = 3, #peopleSheet[1] do
-    eop_config["entities"]["identifiers"][i - 1] = eop.CheckIdentifierNil()
-    eop_config["entities"]["identifiers"][i - 1]["name"] = peopleSheet[3][i]
-end
-
--- Import People
-for i = 1, #peopleSheet - 3 do
-    if peopleSheet[i + 3][1] ~= "" then
-        local entityIndex = #eop_config["entities"]["entities"] + 1
-
-        local entity = eop.CheckEntityNil(eop_config["entities"]["entities"][entityIndex])
-
-        entity["count"] = 1
-        entity["entityCellConditions"] = {}
-        entity["entityZoneConditions"] = {}
-
-        entity["identifiersValues"][1] = {}
-        entity["identifiersValues"][1]["value"] = peopleSheet[i + 3][1]
-        entity["identifiersValues"][1]["conditions"] = eop.StringToStringList(peopleSheet[i + 3][2])
-
-        local j = 3
-        while j <= #peopleSheet[1] do
-            local identifier = {}
-
-            identifier["value"] = peopleSheet[i + 3][j]
-            identifier["conditions"] = {}
-
-            entity["identifiersValues"][#entity["identifiersValues"] + 1] = identifier
-	        j = j + 1
-        end
-
-        eop_config["entities"]["entities"][entityIndex] = entity
+    for i = 3, #row do
+        identifiers[i - 1] = eop.CheckIdentifierNil()
+        identifiers[i - 1]["name"] = row[i]
     end
+    return identifiers
 end
 
--- Import Zones Sheet
-zonesSheet = eop.ImportSheetTable(eop.importSpreadsheetFilePath, "zones")
+function GetPerson(row, index, startIndex)
+    local identifierValuesTable = {}
 
-for i = 1, #zonesSheet - 3 do
-    if zonesSheet[i + 3][1] ~= "" then
-        local zoneIndex = tonumber(zonesSheet[i + 3][1])
+    identifierValuesTable[1] = {}
+    identifierValuesTable[1]["value"] = row[1]
+    identifierValuesTable[1]["conditions"] = eop.StringToStringList(row[2])
 
-        local zone = eop.CheckZoneNil(eop_config["district"]["zones"][zoneIndex])
+    local j = 3
+    while j <= #row do
+        local identifier = {}
 
-        zone["id"] = zoneIndex
-        zone["name"] = zonesSheet[i + 3][2]
-        zone["collapsedIdentifiers"] = {}
-        zone["negativeZoneIdentifierConditions"][1] = {}
+        identifier["value"] = row[j]
+        identifier["conditions"] = {}
 
-        local j = 4;
-        while j <= #zonesSheet[1] do
-            zone["negativeZoneIdentifierConditions"][#zone["negativeZoneIdentifierConditions"] + 1] = eop.StringToStringList(zonesSheet[i + 3][j])
-	        j = j + 1
-        end
-
-        eop_config["district"]["zones"][zoneIndex] = zone
+        identifierValuesTable[#identifierValuesTable + 1] = identifier
+	    j = j + 1
     end
+
+    return {
+        count = 1,
+
+        entityCellConditions = {},
+        entityZoneConditions = {},
+
+        identifiersValues = identifierValuesTable
+    }
 end
+
+function GetZone(row, index, startIndex)
+    negativeZoneIdentifierConditionsTable = {}
+
+    local j = 3;
+    while j <= #row do
+        negativeZoneIdentifierConditionsTable[j - 2] = eop.StringToStringList(row[j])
+        j = j + 1
+    end
+
+    return {
+        id = tonumber(row[1]),
+        name = row[2],
+
+        cells = zoneCells[tonumber(row[1])],
+        collapsedIdentifiers = {},
+
+        positiveZoneIdentifierConditions = {},
+        negativeZoneIdentifierConditions = negativeZoneIdentifierConditionsTable
+    }
+end
+
+function ExportIteration(iteration)
+    if iteration["hide"] == true then
+        return
+    end
+    local identifierIndexes = eop.GetIdentifierIndexes(eop_config, eop.identifiers)
+
+    local iterationSheet = {}
+    
+    iterationSheet[1] = eop.CheckTableNil(iterationSheet[1])
+    iterationSheet[1][1] = "Organised Seating Plan"
+    
+    for j = 1, eop_config["district"]["rows"] do
+        for k = 1, eop_config["district"]["cols"] do
+            local data = ""
+
+            local entityId = iteration["cells"][(((j - 1) * eop_config["district"]["cols"]) + k - 1) + 1]
+
+            if entityId == -1 then
+                data = ""
+            elseif #identifierIndexes == 0 then
+                data = tostring(entityId)
+            else
+                for l = 1, #identifierIndexes - 1 do
+                    data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[l]]["value"]
+                    data = data .. ", "
+                end
+
+                data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[#identifierIndexes]]["value"]
+            end
+            iterationSheet[j + 1] = eop.CheckTableNil(iterationSheet[j + 1])
+            iterationSheet[j + 1][k] = data
+        end
+    end
+    eop.ExportSheetTable(eop.exportSpreadsheetFilePath, iteration["name"], iterationSheet)
+end
+
+-- Running
+
+eop_config = {
+    district = {
+        rows = #sheets["room"] - 1,
+        cols = #sheets["room"][1],
+        
+        occupiableCells = eop.ForEachItemRun(sheets["room"], GetOccupiableCells, 2),
+        
+        zones = eop.ForEachItemRun(sheets["zones"], GetZone, 4),
+        iterations = {
+            {
+                name = "seating_plan",
+                hide = false,
+                disableDropIterationCount = false,
+                
+                disabledCells = {},
+                disabledZones = {},
+                disabledIdentifiers = {},
+                
+                carriedCells = {},
+                carriedZones = {},
+                carriedIdentifiers = {},
+                
+                disabledZoneCollapseIdentifiers = {}
+            }
+        }
+    },
+
+    entities = {
+        identifiers = GetIdentifiers(sheets["people"][3]),
+        entities = eop.ForEachItemRun(sheets["people"], GetPerson, 4)
+    }
+}
 
 eop_config = eop.EvaluateEOP_Config(eop_config)
 
--- Export Iterations
-identifierIndexes = eop.GetIdentifierIndexes(eop_config, eop.identifiers)
-
-iterationSheet = {}
-iterationSheet[1] = eop.CheckTableNil(iterationSheet[1])
-iterationSheet[1][1] = "Organised Seating Plan"
-
-iteration = eop_config["district"]["iterations"][1]
-
-for j = 1, eop_config["district"]["rows"] do
-    for k = 1, eop_config["district"]["cols"] do
-        local data = ""
-        local entityId = iteration["cells"][(((j - 1) * eop_config["district"]["cols"]) + k - 1) + 1]
-
-        if entityId == -1 then
-            data = ""
-        elseif #identifierIndexes == 0 then
-            data = tostring(entityId)
-        else
-            for l = 1, #identifierIndexes - 1 do
-                data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[l]]["value"]
-                data = data .. ", "
-            end
-            data = data .. eop_config["entities"]["entities"][entityId + 1]["identifiersValues"][identifierIndexes[#identifierIndexes]]["value"]
-        end
-
-        iterationSheet[j + 1] = eop.CheckTableNil(iterationSheet[j + 1])
-        iterationSheet[j + 1][k] = data
-    end
-end
-
-eop.ExportSheetTable(eop.exportSpreadsheetFilePath, "seating_plan", iterationSheet)
+ExportIteration(eop_config["district"]["iterations"][1])

@@ -211,7 +211,7 @@ namespace eop {
 
 			iteration.hide = iterations[i + 1]["hide"].get_or(false);
 			iteration.disableDropIterationCount = iterations[i + 1]["disableDropIterationCount"].get_or(false);
-
+			
 			iteration.disabledCells = lua_ConvertVectorVec2Table(iterations[i + 1]["disabledCells"].get<sol::table>());
 			iteration.disabledZones = lua_ConvertVectorIntTable(iterations[i + 1]["disabledZones"].get<sol::table>());
 			iteration.disabledIdentifiers = lua_ConvertVectorValuePairTable(iterations[i + 1]["disabledIdentifiers"].get<sol::table>());
@@ -255,8 +255,8 @@ namespace eop {
 	std::string m_importSpreadsheetFilePath = "", m_exportSpreadsheetFilePath = "";
 	std::string m_identifiers = "";
 
-	int m_depth = 1;
-	bool m_fullRandom = false, m_entitiesRandom = true;
+	int m_depthValue = 1;
+	bool m_fullRandomValue = false, m_entitiesRandomValue = true;
 
 	sol::table lua_EvaluateEOP_Config(const sol::table& eopConfigTable) {
 		EOP_Config eop_config = lua_ConvertEOP_ConfigTable(eopConfigTable);
@@ -265,7 +265,7 @@ namespace eop {
 			m_importResult = false; return eopConfigTable;
 		}
 
-		EvaluateEOP_Config(eop_config, m_depth, m_fullRandom, m_entitiesRandom);
+		EvaluateEOP_Config(eop_config, m_depthValue, m_fullRandomValue, m_entitiesRandomValue);
 
 		PrintEOP_Config(eop_config, m_identifiers);
 		
@@ -276,9 +276,9 @@ namespace eop {
 		m_importSpreadsheetFilePath = importSpreadsheetFilePath;
 		m_exportSpreadsheetFilePath = exportSpreadsheetFilePath;
 
-		m_depth = depth;
-		m_fullRandom = fullRandom;
-		m_entitiesRandom = entitiesRandom;
+		m_depthValue = depth;
+		m_fullRandomValue = fullRandom;
+		m_entitiesRandomValue = entitiesRandom;
 		m_identifiers = identifiers;
 
 		sol::state lua;
