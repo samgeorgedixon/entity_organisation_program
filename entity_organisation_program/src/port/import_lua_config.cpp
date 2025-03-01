@@ -235,7 +235,7 @@ namespace eop {
 
 			eopConfig.district.iterations.push_back(iteration);
 		}
-
+		
 		return eopConfig;
 	}
 

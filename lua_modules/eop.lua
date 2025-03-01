@@ -28,6 +28,19 @@ function eop.ForEachItemRun(list, func, startIndex)
     return retList
 end
 
+function eop.ConcatenateTable(t1, t2)
+    local res = {}
+
+    for i = 1, #t1 do
+        res[#res + 1] = t1[i]
+    end
+    for i = 1, #t2 do
+        res[#res + 1] = t2[i]
+    end
+
+    return res
+end
+
 function eop.CheckTableNil(table)
     if table == nil then
         table = {}
@@ -204,22 +217,22 @@ function eop.StringToValuePairList(value, bound)
     return valuePairList
 end
 
-function eop.GetIdentifierIndexes(eopConfig, identifiers)
+function eop.GetIdentifierIndexes(identifiers, identifiersString)
     local identifiersIndexes = {}
 
-    if identifiers == "" then
+    if identifiersString == "" then
         return identifierIndexes
     end
 
-    identifiers = eop.Trim(identifiers)
+    identifiersString = eop.Trim(identifiersString)
 
     local j = 0
     local found = false
 
-    for token in identifiers:gmatch("[^,]+") do
+    for token in identifiersString:gmatch("[^,]+") do
         token = eop.Trim(token)
 
-        for i, identifier in ipairs(eopConfig["entities"]["identifiers"]) do
+        for i, identifier in ipairs(identifiers) do
             if eop.Low(identifier["name"]) == eop.Low(token) then
                 table.insert(identifiersIndexes, i)
                 found = true
@@ -227,9 +240,9 @@ function eop.GetIdentifierIndexes(eopConfig, identifiers)
         end
         j = j + 1
     end
-    if identifiers ~= "" and j == 0 and not found then
-        for i, identifier in ipairs(eopConfig["entities"]["identifiers"]) do
-            if eop.Low(identifier["name"]) == eop.Low(identifiers) then
+    if identifiersString ~= "" and j == 0 and not found then
+        for i, identifier in ipairs(identifiers) do
+            if eop.Low(identifier["name"]) == eop.Low(identifiersString) then
                 table.insert(identifiersIndexes, i)
             end
         end

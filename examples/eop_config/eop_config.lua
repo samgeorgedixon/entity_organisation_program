@@ -204,7 +204,7 @@ function ExportIteration(iteration, index, startIndex)
     if iteration["hide"] == true then
         return
     end
-    local identifierIndexes = eop.GetIdentifierIndexes(eop_config, eop.identifiers)
+    local identifierIndexes = eop.GetIdentifierIndexes(eop_config["entities"]["identifiers"], eop.identifiers)
 
     local iterationSheet = {}
     
