@@ -9,19 +9,18 @@ namespace app {
 	bool finished = false;
 	bool showImGui = true;
 
-	int widthPixels = 400;
-	int heightPixels = 250;
+	const int widthPixels = 400;
+	const int heightPixels = 250;
 
 	std::string outputLine0 = "";
 	std::string outputLine1 = "";
 
-	int bufferSize = 200;
-	char* luaConfigPathBuffer = new char[bufferSize];
-	char* luaConfigPathBufferCheck = new char[bufferSize];
-	char* spreadsheetPathBuffer = new char[bufferSize];
+	const int bufferSize = 200;
+	char* luaConfigPathBuffer		 = new char[bufferSize];
+	char* luaConfigPathBufferCheck	 = new char[bufferSize];
+	char* spreadsheetPathBuffer		 = new char[bufferSize];
 	char* spreadsheetPathBufferCheck = new char[bufferSize];
-
-	char* identifierBuffer = new char[bufferSize];
+	char* identifierBuffer			 = new char[bufferSize];
 
 	int depthSlider = 1;
 	int repeatsSlider = 25;
