@@ -1,11 +1,10 @@
 site_name: Entity Organisation Program
 site_author: Sam Dixon
 site_url: https://samgeorgedixon.github.io/entity_organisation_program
+docs_dir: docs
 
-nav:
-- Introduction: index.md
-- Configuration: configuration.md
-- Usage: usage.md
+not_in_nav: |
+  /old/
 
 theme:
   name: readthedocs
