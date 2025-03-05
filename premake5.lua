@@ -95,3 +95,5 @@ project "entity_organisation_program"
         "%{includes.lua}",
         "%{includes.sol2}"
     }
+    filter "configurations:release"
+        defines "EOP_DISABLE_LOGGING"
