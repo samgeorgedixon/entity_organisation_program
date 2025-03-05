@@ -13,7 +13,7 @@ For instance it can be used for creating seating plans of people in an array of 
 
 To get started you can download the installer and the template or an example from the [releases](https://github.com/samgeorgedixon/entity_organisation_program/releases) page.
 
-It is all based around an spreadsheet that you configure based on the type of lua config which defines how the spreadsheet is interpreted and ran through the program into another spreadsheet with the evaluated results inside.
+It is all based around a spreadsheet that you configure based on the type of lua config which defines how the spreadsheet is interpreted and ran through the program into another spreadsheet with the evaluated results inside.
 
 ---
 

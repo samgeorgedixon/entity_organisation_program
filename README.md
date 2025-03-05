@@ -22,6 +22,6 @@ Only windows_x86-64 is currently supported at this moment.
 
 ## Usage
 
-It is all based around an spreadsheet that you configure based on the type of lua config which defines how the spreadsheet is interpreted and ran through the program into another spreadsheet with the evaluated results inside.
+It is all based around a spreadsheet that you configure based on the type of lua config which defines how the spreadsheet is interpreted and ran through the program into another spreadsheet with the evaluated results inside.
 
 You can start with a lua config template and a spreadsheet example under releases and then read the [documentation](https://samgeorgedixon.github.io/entity_organisation_program) on how to configure these to fit your needs.
