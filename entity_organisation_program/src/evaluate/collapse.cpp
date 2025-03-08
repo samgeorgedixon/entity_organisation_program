@@ -259,7 +259,7 @@ namespace eop {
 		}
 	}
 
-	std::vector<int> GetPossibleCellCollapses(const EOP_Config& eop_config, const std::vector<bool>& cells) {
+	std::vector<int> GetPossibleCellCollapses(const EOP_Config& eop_config, const std::vector<bool>& cells,const std::vector<int>& collapsedCells) {
 		int cellCount = eop_config.district.rows * eop_config.district.cols;
 		int entityCount = eop_config.entities.entities.size();
 
@@ -274,7 +274,19 @@ namespace eop {
 				superposCount += cells[(i * entityCount) + j];
 			}
 
-			if (superposCount <= minSuperposCount && superposCount > 1) {
+			bool collapsed = false;
+			if (superposCount == 1) {
+				for (int j = 0; j < collapsedCells.size(); j++) {
+					if (collapsedCells[j] == i) {
+						collapsed = true;
+					}
+				}
+				if (collapsed) {
+					continue;
+				}
+			}
+
+			if (superposCount <= minSuperposCount && superposCount >= 1) {
 				if (superposCount < minSuperposCount) {
 					minSuperposCount = superposCount;
 
@@ -293,7 +305,7 @@ namespace eop {
 		int cellCount = eop_config.district.rows * eop_config.district.cols;
 		int entityCount = eop_config.entities.entities.size();
 
-		std::vector<int> possibleCellIndexes = GetPossibleCellCollapses(eop_config, cells);
+		std::vector<int> possibleCellIndexes = GetPossibleCellCollapses(eop_config, cells, collapsedCells);
 
 		if (possibleCellIndexes.size() == 0 || collapsedCells.size() >= totalEntities || collapsedCells.size() >= cellsToCollapse) {
 			EOP_LOG("Collapsed Iteration " << iteration << ": " << collapsedCells.size() << " / " << totalEntities << " / " << cellsToCollapse << "\n");
