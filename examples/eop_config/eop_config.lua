@@ -93,11 +93,11 @@ function GetIteration(row, index, startIndex)
 
     local j = 1;
     while j <= #carriedCellsStringList do
-        local carriedCellStringList = eop.StringToStringList(carriedCellsStringList[j])
+        local first, second = carriedCellsStringList[j]:match("([^,]*),?(.*)")
 
         carriedCellsTable[j] = {}
-        carriedCellsTable[j][1] = carriedCellStringList[1]
-        carriedCellsTable[j][2] = eop.StringToVec2List(carriedCellStringList[2])
+        carriedCellsTable[j][1] = first
+        carriedCellsTable[j][2] = eop.StringToVec2List(second)
 
         j = j + 1
     end
@@ -108,11 +108,11 @@ function GetIteration(row, index, startIndex)
 
     j = 1;
     while j <= #carriedZonesStringList do
-        local carriedZoneStringList = eop.StringToStringList(carriedZonesStringList[j])
+        local first, second = carriedZonesStringList[j]:match("([^,]*),?(.*)")
 
         carriedZonesTable[j] = {}
-        carriedZonesTable[j][1] = carriedZoneStringList[1]
-        carriedZonesTable[j][2] = eop.StringToIntList(carriedZoneStringList[2])
+        carriedZonesTable[j][1] = first
+        carriedZonesTable[j][2] = eop.StringToIntList(second)
 
         j = j + 1
     end

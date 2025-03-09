@@ -133,10 +133,10 @@ namespace eop {
 
 		// Disable Zones
 		for (int i = 0; i < eop_config.district.iterations[iteration].disabledZones.size(); i++) {
-			int zoneIndex = eop_config.district.iterations[iteration].disabledZones[i];
+			int zoneIndex = eop_config.district.iterations[iteration].disabledZones[i] - 1;
 
 			for (int j = 0; j < eop_config.district.zones[zoneIndex].cells.size(); j++) {
-				DisableCellCoordinate(eop_config, cells, eop_config.district.zones[eop_config.district.iterations[iteration].disabledZones[i]].cells[j]);
+				DisableCellCoordinate(eop_config, cells, eop_config.district.zones[zoneIndex].cells[j]);
 			}
 		}
 
@@ -241,10 +241,10 @@ namespace eop {
 			}
 
 			for (int i = 0; i < eop_config.district.iterations[iteration].carriedZones[l].second.size(); i++) {
-				int zoneIndex = eop_config.district.iterations[iteration].carriedZones[l].second[i];
+				int zoneIndex = eop_config.district.iterations[iteration].carriedZones[l].second[i] - 1;
 
 				for (int j = 0; j < eop_config.district.zones[zoneIndex].cells.size(); j++) {
-					CarryCellCoordinate(eop_config, originalEntities, cells, collapsedCells, entityIdentifierCounts, eop_config.district.zones[eop_config.district.iterations[iteration].carriedZones[l].second[i]].cells[j], iteration, carryIterationIndex);
+					CarryCellCoordinate(eop_config, originalEntities, cells, collapsedCells, entityIdentifierCounts, eop_config.district.zones[zoneIndex].cells[j], iteration, carryIterationIndex);
 				}
 			}
 		}
