@@ -614,7 +614,7 @@ namespace eop {
 		for (int i = 0; i < eop_config_copy.district.iterations.size(); i++) {
 			RunIteration(eop_config_copy, eop_config.entities.entities, entityIdentifierCounts, i, totalEntities, depth, fullRandom, entitiesRandom);
 		}
-
+		
 		eop_config.district.iterations = eop_config_copy.district.iterations;
 	}
 

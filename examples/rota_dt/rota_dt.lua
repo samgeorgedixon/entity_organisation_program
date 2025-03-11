@@ -239,7 +239,7 @@ end
 
 -- Exporting
 
-function ExportRota()
+function ExportRota(termCount)
     rotaSheet = {}
 
     rotaSheet[1] = eop.CheckTableNil(rotaSheet[1])
@@ -252,16 +252,20 @@ function ExportRota()
     
     rotaSheet[3][1] = ""
 
-    for i = 1, #eop_config["entities"]["entities"] do
-        rotaSheet[3 + i] = eop.CheckTableNil(rotaSheet[3 + i])
-        rotaSheet[3 + i][1] = eop_config["entities"]["entities"][i]["identifiersValues"][1]["value"]
-    end
-
     local halfTerm = 1
     local timesCount = 0
 
     for key, time in pairs(times) do
         timesCount = timesCount + 1
+    end
+
+    for i = 1, #eop_config["entities"]["entities"] do
+        rotaSheet[3 + i] = eop.CheckTableNil(rotaSheet[3 + i])
+        rotaSheet[3 + i][1] = eop_config["entities"]["entities"][i]["identifiersValues"][1]["value"]
+
+        for j = 1, termCount * 2 do
+            rotaSheet[3 + i][1 + j] = "NA"
+        end
     end
 
     for i = 1, #eop_config["district"]["iterations"] do
@@ -281,12 +285,6 @@ function ExportRota()
 
             if classId ~= 0 then
                 rotaSheet[3 + classId] = eop.CheckTableNil(rotaSheet[3 + classId])
-
-                k = #rotaSheet[3 + classId] + 1
-                while #rotaSheet[3 + classId] + 1 < halfTerm + 1 do
-                    rotaSheet[3 + classId][k] = "NA"
-                    k = k + 1
-                end
 
                 rotaSheet[3 + classId][halfTerm + 1] = room .. ", " .. lesson
             end
@@ -353,4 +351,4 @@ eop_config = {
 
 eop_config = eop.EvaluateEOP_Config(eop_config)
 
-ExportRota()
+ExportRota(3)
