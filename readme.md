@@ -15,7 +15,7 @@ There is a windows_x86-64 installer under [releases](https://github.com/samgeorg
 To build from source on windows you can use Premake and replace target.
 
 ```shell
-dep\premake\premake5.exe <target>
+vendor\bin\premake\premake5.exe <target>
 ```
 
 Only windows_x86-64 is currently supported at this moment.
