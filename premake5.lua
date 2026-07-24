@@ -3,7 +3,7 @@ workspace "entity_organisation_program"
     language "C++"
     cppdialect "C++17"
 
-    startproject "entity_organisation_program-app"
+    startproject "entity_organisation_program"
     
     configurations { "debug", "release" }
 
@@ -29,32 +29,32 @@ includes["lua"] = "entity_organisation_program/vendor/lua/include"
 includes["sol2"] = "entity_organisation_program/vendor/sol2/include"
 
 group "dependencies"
-    include "entity_organisation_program-app/vendor/imgui/imgui"
+    include "app/vendor/imgui/imgui"
 group ""
 
-project "entity_organisation_program-app"
-    location "entity_organisation_program-app"
+project "entity_organisation_program"
+    location "app"
 
-    targetdir ("%{wks.location}/bin/%{prj.name}/" .. builddir)
-    objdir ("%{wks.location}/bin_int/%{prj.name}/" .. builddir)
+    targetdir ("%{wks.location}/bin/%{prj.location}/" .. builddir)
+    objdir ("%{wks.location}/bin_int/%{prj.location}/" .. builddir)
 
     files {
-        "%{prj.name}/src/**.cpp",
-        "%{prj.name}/src/**.h"
+        "%{prj.location}/src/**.cpp",
+        "%{prj.location}/src/**.h"
     }
     includedirs {
-        "%{prj.name}/src",
-        "entity_organisation_program/src",
+        "%{prj.location}/src",
+        "engine/src",
         "%{includes.imgui}",
         "%{includes.sdl}"
     }
     libdirs {
         "%{prj.location}/vendor/sdl/lib/x64",
-        "entity_organisation_program/vendor/OpenXLSX/build/lib",
-        "entity_organisation_program/vendor/lua"
+        "engine/vendor/OpenXLSX/build/lib",
+        "engine/vendor/lua"
     }
     links {
-        "entity_organisation_program",
+        "entity_organisation_program.engine",
         "imgui",
         "sdl2.lib",
         "sdl2main.lib",
@@ -78,19 +78,19 @@ project "entity_organisation_program-app"
         defines "EOP_DISABLE_LOGGING"
         links "OpenXLSX.lib"
 
-project "entity_organisation_program"
-    location "entity_organisation_program"
+project "entity_organisation_program.engine"
+    location "engine"
     kind "StaticLib"
 
-    targetdir ("%{wks.location}/bin/%{prj.name}/" .. builddir)
-    objdir ("%{wks.location}/bin_int/%{prj.name}/" .. builddir)
+    targetdir ("%{wks.location}/bin/%{prj.location}/" .. builddir)
+    objdir ("%{wks.location}/bin_int/%{prj.location}/" .. builddir)
 
     files {
-        "%{prj.name}/src/**.cpp",
-        "%{prj.name}/src/**.h"
+        "%{prj.location}/src/**.cpp",
+        "%{prj.location}/src/**.h"
     }
     includedirs {
-        "%{prj.name}/src",
+        "%{prj.location}/src",
         "%{includes.OpenXLSX}",
         "%{includes.lua}",
         "%{includes.sol2}"

@@ -1,18 +1,14 @@
+.vs
 *.sln
+*.slnx
 *.vcxproj
 *.user
 *.filters
+
 *.tmp
-
-/.vs
-
-/bin
-/bin_int
-
 ~$*
 
+/bin
 /releases
 
-/mkdocs/site
-
-/gen_vs.bat
+/gen-vs-2026.bat
