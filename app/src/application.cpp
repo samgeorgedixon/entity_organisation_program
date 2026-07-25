@@ -1,5 +1,14 @@
 #include "application.h"
 
+#include <thread>
+#include <windows.h>
+#include <commdlg.h>
+
+#include "sdl3/SDL.h"
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_manager.h"
+
 namespace app {
 
 	SDL_Window* window;
@@ -31,10 +40,7 @@ namespace app {
 	static bool runConfigFinished = true;
 
 	std::string OpenFileDialog(const char* filter) {
-		SDL_SysWMinfo wmInfo;
-		SDL_VERSION(&wmInfo.version);
-		SDL_GetWindowWMInfo(window, &wmInfo);
-		HWND hwnd = wmInfo.info.win.window;
+		HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr); // Window Handle
 
 		OPENFILENAMEA ofn;
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -54,8 +60,10 @@ namespace app {
 		ofn.nFilterIndex = 1;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
 
-		if (GetOpenFileNameA(&ofn) == TRUE)
+		if (GetOpenFileNameA(&ofn) == TRUE) {
 			return ofn.lpstrFile;
+		}
+
 		return "";
 	}
 	
@@ -92,11 +100,10 @@ namespace app {
 
 	void Setup() {
 		SDL_Init(SDL_INIT_VIDEO);
-		SDL_CreateWindowAndRenderer(widthPixels, heightPixels, 0, &window, &renderer);
+		SDL_CreateWindowAndRenderer("Entity Organisation Program", widthPixels, heightPixels, 0, &window, &renderer);
 
-		SDL_RenderSetVSync(renderer, 1);
-		SDL_RenderSetScale(renderer, 1, 1);
-		SDL_SetWindowTitle(window, "Entity Organisation Program");
+		SDL_SetRenderVSync(renderer, 1);
+		SDL_SetRenderScale(renderer, 1, 1);
 
 		ImGuiSetup(window, renderer);
 
@@ -120,9 +127,9 @@ namespace app {
 
 	void StartFrame() {
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT)
+			if (event.type == SDL_EVENT_QUIT)
 				finished = true;
-			ImGui_ImplSDL2_ProcessEvent(&event);
+			ImGui_ImplSDL3_ProcessEvent(&event);
 		}
 
 		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -141,11 +148,14 @@ namespace app {
 		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+
 		ImGui::SetNextWindowPos(viewport->WorkPos);
 		ImGui::SetNextWindowSize(viewport->WorkSize);
 		ImGui::SetNextWindowViewport(viewport->ID);
+
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
 		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 
@@ -156,10 +166,12 @@ namespace app {
 	void Menu() {
 		if (ImGui::BeginMenuBar()) {
 			if (ImGui::BeginMenu("File")) {
-				if (ImGui::MenuItem("Exit", NULL, false, finished != true))
+				if (ImGui::MenuItem("Exit", NULL, false, finished != true)) {
 					finished = true;
+				}
 				ImGui::EndMenu();
 			}
+
 			ImGui::EndMenuBar();
 		}
 	}
@@ -167,14 +179,18 @@ namespace app {
 	void CheckBufferChanges() {
 		bool luaConfigChanged = false;
 		bool spreadsheetChanged = false;
+
 		for (int i = 0; i < bufferSize; i++) {
-			if (luaConfigPathBuffer[i] != luaConfigPathBuffer[i]) {
-				luaConfigChanged = true; break;
+			if (luaConfigPathBuffer[i] != luaConfigPathBufferCheck[i]) {
+				luaConfigChanged = true;
+				break;
 			}
 			if (spreadsheetPathBuffer[i] != spreadsheetPathBufferCheck[i]) {
-				spreadsheetChanged = true; break;
+				spreadsheetChanged = true;
+				break;
 			}
 		}
+
 		if (luaConfigChanged) {
 			outputLine0 = "";
 			outputLine1 = "";

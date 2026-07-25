@@ -11,6 +11,7 @@ workspace "entity_organisation_program"
         systemversion "latest"
         defines "PLATFORM_WINDOWS"
         staticruntime "on"
+        entrypoint "mainCRTStartup"
     filter "configurations:debug"
         defines "DEBUG"
         symbols "on"
@@ -18,26 +19,29 @@ workspace "entity_organisation_program"
         defines "RELEASE"
         optimize "on"
 
-builddir = "%{cfg.buildcfg}_%{cfg.system}_%{cfg.architecture}"
+build = "%{cfg.buildcfg}-%{cfg.system}/"
+bin = "%{wks.location}/bin/"
+bin_int = "%{wks.location}/bin/bin-int/"
 
 includes = {}
-includes["imgui"] = "entity_organisation_program-app/vendor/imgui"
-includes["sdl"] = "entity_organisation_program-app/vendor/sdl/include"
+includes["imgui"] = "vendor/imgui"
+includes["sdl3"] = "vendor/sdl3/include"
 
-includes["OpenXLSX"] = "entity_organisation_program/vendor/OpenXLSX/build/include"
-includes["lua"] = "entity_organisation_program/vendor/lua/include"
-includes["sol2"] = "entity_organisation_program/vendor/sol2/include"
+includes["openxlsx"] = "vendor/openxlsx/build/output/include"
+includes["lua54"] = "vendor/lua54/include"
+includes["sol2"] = "vendor/sol2/include"
 
 group "dependencies"
-    include "app/vendor/imgui/imgui"
+    include "vendor/imgui"
 group ""
 
-project "entity_organisation_program"
+project "app"
     location "app"
-
-    targetdir ("%{wks.location}/bin/%{prj.location}/" .. builddir)
-    objdir ("%{wks.location}/bin_int/%{prj.location}/" .. builddir)
-
+    
+    targetname "entity_organisation_program"
+    targetdir (bin .. "app/" .. build)
+    objdir (bin_int .. "app/" .. build)
+    
     files {
         "%{prj.location}/src/**.cpp",
         "%{prj.location}/src/**.h"
@@ -45,55 +49,67 @@ project "entity_organisation_program"
     includedirs {
         "%{prj.location}/src",
         "engine/src",
+        
         "%{includes.imgui}",
-        "%{includes.sdl}"
+        "%{includes.sdl3}"
     }
     libdirs {
-        "%{prj.location}/vendor/sdl/lib/x64",
-        "engine/vendor/OpenXLSX/build/lib",
-        "engine/vendor/lua"
+        "vendor/sdl3/lib/x64",
+        
+        "vendor/lua54",
     }
     links {
-        "entity_organisation_program.engine",
-        "imgui",
-        "sdl2.lib",
-        "sdl2main.lib",
-        "lua54.lib",
-        "comctl32.lib"
-    }
-
-    postbuildcommands {
-		("{COPY} %{prj.location}vendor/sdl/lib/x64/SDL2.dll %{wks.location}bin/%{prj.name}/" .. builddir),
-		("{COPY} %{wks.location}entity_organisation_program/vendor/lua/lua54.dll %{wks.location}bin/%{prj.name}/" .. builddir),
+        "engine",
         
-		("{COPY} %{wks.location}lua_modules/eop.lua %{wks.location}bin/%{prj.name}/" .. builddir),
-		("{COPY} %{wks.location}lua_modules/eop.lua %{wks.location}%{prj.name}/")
+        "imgui",
+        "SDL3.lib",
+        
+        "lua54.lib",
+        
+        "miniz.lib",
+        "nowide.lib",
+        "pugixml.lib"
+    }
+    
+    postbuildcommands {
+        ("{COPY} %{wks.location}vendor/sdl3/lib/x64/SDL3.dll %{cfg.targetdir}"),
+        
+		("{COPY} %{wks.location}examples/lua_modules/eop.lua %{cfg.targetdir}"),
+		("{COPY} %{wks.location}examples/lua_modules/eop.lua %{prj.location}")
 	}
-
+    
     filter "configurations:debug"
         kind "ConsoleApp"
+        libdirs {
+            "vendor/openxlsx/build-debug/output/lib",
+            "vendor/openxlsx/build-debug/output/lib/OpenXLSX"
+        }
         links "OpenXLSXd.lib"
     filter "configurations:release"
         kind "WindowedApp"
-        defines "EOP_DISABLE_LOGGING"
+        libdirs {
+            "vendor/openxlsx/build-release/output/lib",
+            "vendor/openxlsx/build-release/output/lib/OpenXLSX"
+        }
         links "OpenXLSX.lib"
-
-project "entity_organisation_program.engine"
+        defines "EOP_DISABLE_LOGGING"
+    
+project "engine"
     location "engine"
     kind "StaticLib"
-
-    targetdir ("%{wks.location}/bin/%{prj.location}/" .. builddir)
-    objdir ("%{wks.location}/bin_int/%{prj.location}/" .. builddir)
+    
+    targetname "entity_organisation_program_engine"
+    targetdir (bin .. "engine/" .. build)
+    objdir (bin_int .. "engine/" .. build)
 
     files {
         "%{prj.location}/src/**.cpp",
         "%{prj.location}/src/**.h"
-    }
+    } 
     includedirs {
         "%{prj.location}/src",
-        "%{includes.OpenXLSX}",
-        "%{includes.lua}",
+        
+        "%{includes.lua54}",
+        "%{includes.openxlsx}",
         "%{includes.sol2}"
     }
-    filter "configurations:release"
-        defines "EOP_DISABLE_LOGGING"

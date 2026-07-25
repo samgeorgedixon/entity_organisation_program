@@ -1,6 +1,9 @@
 .vs
+.git
+
 *.sln
 *.slnx
+*.code-workspace
 *.vcxproj
 *.user
 *.filters
