@@ -90,7 +90,7 @@ namespace eop {
 					int	identifierIndex = -1;
 
 					for (int j = 0; j < identifierCount; j++) {
-						if (Low(identifier) == Low(eop_config.entities.identifiers[j].name)) {
+						if (Lowercase(identifier) == Lowercase(eop_config.entities.identifiers[j].name)) {
 							identifierIndex = j;
 							break;
 						}
@@ -102,12 +102,12 @@ namespace eop {
 					std::string entityValue = eop_config.entities.entities[entity].identifiersValues[identifierIndex].value;
 					std::string collapsedIdentifierValue = eop_config.district.zones[currentZone].collapsedIdentifiers[i].value;
 
-					if (Low(entityValue) == Low(collapsedIdentifierValue)) {
+					if (Lowercase(entityValue) == Lowercase(collapsedIdentifierValue)) {
 						bool disabled = false;
 
 						for (int k = 0; k < eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
-							if (Low(eop_config.district.zones[currentZone].collapsedIdentifiers[i].name) == Low(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
-								&& Low(eop_config.district.zones[currentZone].collapsedIdentifiers[i].value) == Low(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
+							if (Lowercase(eop_config.district.zones[currentZone].collapsedIdentifiers[i].name) == Lowercase(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
+								&& Lowercase(eop_config.district.zones[currentZone].collapsedIdentifiers[i].value) == Lowercase(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
 								disabled = true;
 							}
 						}
@@ -118,7 +118,7 @@ namespace eop {
 						int identifierIndex = -1;
 
 						for (int k = 0; k < identifierCount; k++) {
-							if (Low(eop_config.entities.identifiers[k].name) == Low(eop_config.district.zones[currentZone].collapsedIdentifiers[i].name)) {
+							if (Lowercase(eop_config.entities.identifiers[k].name) == Lowercase(eop_config.district.zones[currentZone].collapsedIdentifiers[i].name)) {
 								identifierIndex = k;
 								break;
 							}
@@ -134,7 +134,7 @@ namespace eop {
 							std::string identifierValue = eop_config.district.zones[currentZone].collapsedIdentifiers[i].value;
 							std::string entityIdentifierValue = eop_config.entities.entities[j].identifiersValues[identifierIndex].value;
 
-							if (Low(entityIdentifierValue) != Low(identifierValue)) {
+							if (Lowercase(entityIdentifierValue) != Lowercase(identifierValue)) {
 								restrictedEntities.push_back(j);
 							}
 						}
@@ -162,7 +162,7 @@ namespace eop {
 
 			for (int j = 0; j < entityCount; j++) {
 				for (int k = 0; k < eop_config.entities.entities[entity].identifiersValues[i].conditions.size(); k++) {
-					if (Low(originalEntities[j].identifiersValues[i].value) == Low(eop_config.entities.entities[entity].identifiersValues[i].conditions[k])) {
+					if (Lowercase(originalEntities[j].identifiersValues[i].value) == Lowercase(eop_config.entities.entities[entity].identifiersValues[i].conditions[k])) {
 						entityConditions.push_back(j);
 					}
 				}
@@ -308,7 +308,7 @@ namespace eop {
 		std::vector<int> possibleCellIndexes = GetPossibleCellCollapses(eop_config, cells, collapsedCells);
 
 		if (possibleCellIndexes.size() == 0 || collapsedCells.size() >= totalEntities || collapsedCells.size() >= cellsToCollapse) {
-			EOP_LOG("Collapsed Iteration " << iteration << ": " << collapsedCells.size() << " / " << totalEntities << " / " << cellsToCollapse << "\n");
+			EOP_LOG("Collapsed Iteration %d: %d / %d / %d\n", iteration, collapsedCells.size(), totalEntities, cellsToCollapse);
 			return true;
 		}
 

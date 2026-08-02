@@ -3,8 +3,8 @@ project "imgui"
 	language "C++"
 	cppdialect "C++17"
 
-    targetdir (bin .. "%{prj.location}/" .. build)
-    objdir (bin_int .. "%{prj.location}/" .. build)
+    targetdir (bin .. "imgui/" .. build)
+    objdir (bin_int .. "imgui/" .. build)
 
 	files {
 		"imgui/imconfig.h",
@@ -19,3 +19,11 @@ project "imgui"
 		"imgui/imgui_demo.cpp",
 		"imgui/imgui_tables.cpp"
 	}
+
+	filter "system:windows"
+		systemversion "latest"
+		staticruntime "on"
+	filter "configurations:debug"
+		symbols "on"
+	filter "configurations:release"
+		optimize "on"

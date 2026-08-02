@@ -1,5 +1,10 @@
 #include "evaluate.h"
 
+#include <string>
+#include <vector>
+
+#include "collapse.h"
+
 namespace eop {
 
 	void SetEntityCounts(EOP_Config& eop_config, const std::vector<Entity>& originalEntities, std::vector<bool>& cells, const std::vector<int>& collapsedCells) {
@@ -148,7 +153,7 @@ namespace eop {
 			int			identifierIndex = -1;
 
 			for (int j = 0; j < identifierCount; j++) {
-				if (Low(identifier) == Low(eop_config.entities.identifiers[j].name)) {
+				if (Lowercase(identifier) == Lowercase(eop_config.entities.identifiers[j].name)) {
 					identifierIndex = j;
 					break;
 				}
@@ -161,7 +166,7 @@ namespace eop {
 
 			for (int j = 0; j < entityCount; j++) {
 				std::string entityValue = originalEntities[j].identifiersValues[identifierIndex].value;
-				if (Low(value) == Low(entityValue)) {
+				if (Lowercase(value) == Lowercase(entityValue)) {
 					disabledEntities.push_back(j);
 				}
 			}
@@ -214,7 +219,7 @@ namespace eop {
 			int carryIterationIndex = -1;
 
 			for (int i = 0; i < eop_config.district.iterations.size(); i++) {
-				if (Low(eop_config.district.iterations[i].name) == Low(eop_config.district.iterations[iteration].carriedCells[l].first)) {
+				if (Lowercase(eop_config.district.iterations[i].name) == Lowercase(eop_config.district.iterations[iteration].carriedCells[l].first)) {
 					carryIterationIndex = i;
 				}
 			}
@@ -232,7 +237,7 @@ namespace eop {
 			int carryIterationIndex = -1;
 
 			for (int i = 0; i < eop_config.district.iterations.size(); i++) {
-				if (Low(eop_config.district.iterations[i].name) == Low(eop_config.district.iterations[iteration].carriedZones[l].first)) {
+				if (Lowercase(eop_config.district.iterations[i].name) == Lowercase(eop_config.district.iterations[iteration].carriedZones[l].first)) {
 					carryIterationIndex = i;
 				}
 			}
@@ -254,7 +259,7 @@ namespace eop {
 			int carryIterationIndex = -1;
 
 			for (int i = 0; i < eop_config.district.iterations.size(); i++) {
-				if (Low(eop_config.district.iterations[i].name) == Low(eop_config.district.iterations[iteration].carriedIdentifiers[l].first)) {
+				if (Lowercase(eop_config.district.iterations[i].name) == Lowercase(eop_config.district.iterations[iteration].carriedIdentifiers[l].first)) {
 					carryIterationIndex = i;
 				}
 			}
@@ -269,7 +274,7 @@ namespace eop {
 				int identifierIndex = -1;
 
 				for (int j = 0; j < identifierCount; j++) {
-					if (Low(identifier) == Low(eop_config.entities.identifiers[j].name)) {
+					if (Lowercase(identifier) == Lowercase(eop_config.entities.identifiers[j].name)) {
 						identifierIndex = j;
 						break;
 					}
@@ -282,7 +287,7 @@ namespace eop {
 
 				for (int j = 0; j < entityCount; j++) {
 					std::string entityValue = originalEntities[j].identifiersValues[identifierIndex].value;
-					if (Low(value) == Low(entityValue)) {
+					if (Lowercase(value) == Lowercase(entityValue)) {
 						carriedEntities.push_back(j);
 					}
 				}
@@ -316,7 +321,7 @@ namespace eop {
 					for (int k = 0; k < eop_config.district.zones[i].negativeZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = eop_config.district.zones[i].negativeZoneIdentifierConditions[j][k];
 
-						if (Low(identifierCondition) == Low(originalEntities[l].identifiersValues[j].value)) {
+						if (Lowercase(identifierCondition) == Lowercase(originalEntities[l].identifiersValues[j].value)) {
 							restrictedEntities.push_back(l);
 							break;
 						}
@@ -326,11 +331,11 @@ namespace eop {
 					for (int k = 0; k < eop_config.district.zones[i].positiveZoneIdentifierConditions[j].size(); k++) {
 						std::string identifierCondition = eop_config.district.zones[i].positiveZoneIdentifierConditions[j][k];
 
-						if (Low(identifierCondition) != Low(eop_config.entities.entities[l].identifiersValues[j].value)) {
+						if (Lowercase(identifierCondition) != Lowercase(eop_config.entities.entities[l].identifiersValues[j].value)) {
 							restrictedEntities.push_back(l);
 							break;
 						}
-						else if (Low(identifierCondition) == Low(eop_config.entities.entities[l].identifiersValues[j].value)) {
+						else if (Lowercase(identifierCondition) == Lowercase(eop_config.entities.entities[l].identifiersValues[j].value)) {
 							allowedEntities.push_back(l);
 							break;
 						}
@@ -392,7 +397,7 @@ namespace eop {
 					int	identifierIndex = -1;
 
 					for (int j = 0; j < identifierCount; j++) {
-						if (Low(identifier) == Low(eop_config.entities.identifiers[j].name)) {
+						if (Lowercase(identifier) == Lowercase(eop_config.entities.identifiers[j].name)) {
 							identifierIndex = j;
 							break;
 						}
@@ -404,7 +409,7 @@ namespace eop {
 					std::string entityValue = eop_config.entities.entities[entityIndex].identifiersValues[identifierIndex].value;
 					std::string collapsedIdentifierValue = eop_config.district.zones[i].collapsedIdentifiers[k].value;
 
-					if (Low(entityValue) == Low(collapsedIdentifierValue)) {
+					if (Lowercase(entityValue) == Lowercase(collapsedIdentifierValue)) {
 						collpasedIdentifierCellCounts[k]++;
 					}
 				}
@@ -422,8 +427,8 @@ namespace eop {
 					bool disabled = false;
 
 					for (int k = 0; k < eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers.size(); k++) {
-						if (Low(eop_config.district.zones[i].collapsedIdentifiers[j].name) == Low(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
-							&& Low(eop_config.district.zones[i].collapsedIdentifiers[j].value) == Low(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
+						if (Lowercase(eop_config.district.zones[i].collapsedIdentifiers[j].name) == Lowercase(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].name)
+							&& Lowercase(eop_config.district.zones[i].collapsedIdentifiers[j].value) == Lowercase(eop_config.district.iterations[iteration].disabledZoneCollapseIdentifiers[k].value)) {
 							disabled = true;
 						}
 					}
@@ -434,7 +439,7 @@ namespace eop {
 					int identifierIndex = -1;
 
 					for (int k = 0; k < identifierCount; k++) {
-						if (Low(eop_config.entities.identifiers[k].name) == Low(eop_config.district.zones[i].collapsedIdentifiers[j].name)) {
+						if (Lowercase(eop_config.entities.identifiers[k].name) == Lowercase(eop_config.district.zones[i].collapsedIdentifiers[j].name)) {
 							identifierIndex = k;
 							break;
 						}

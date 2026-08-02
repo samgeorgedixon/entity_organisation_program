@@ -1,6 +1,12 @@
 #include "import_eop_config.h"
 
+#include <fstream>
+#include <sstream>
+
 #include "OpenXLSX/OpenXLSX.hpp"
+
+#include "evaluate/evaluate.h"
+#include "port/export_eop_config.h"
 
 namespace eop {
 
@@ -243,7 +249,7 @@ namespace eop {
 		file.open(filePath);
 
 		if (!file.good()) {
-			EOP_LOG("Unable to Open File: " << filePath);
+			EOP_LOG("Unable to Open File: %s\n", filePath.c_str());
 
 			file.close();
 			return eopConfig;

@@ -1,5 +1,9 @@
 #include "misc.h"
 
+#include <string>
+#include <chrono>
+#include <random>
+
 namespace eop {
 
 	void SetupRandom() {
@@ -13,7 +17,7 @@ namespace eop {
 		return low + (rand() % high);
 	}
 
-	std::string Low(std::string value) {
+	std::string Lowercase(std::string value) {
 		std::string output = "";
 
 		for (int i = 0; i < value.size(); i++) {

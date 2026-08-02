@@ -1,13 +1,15 @@
 #include "application.h"
 
+#include <string>
 #include <thread>
+
 #include <windows.h>
 #include <commdlg.h>
 
 #include "sdl3/SDL.h"
-
-#include "imgui/imgui.h"
 #include "imgui/imgui_manager.h"
+
+#include "entity_organisation_program.h"
 
 namespace app {
 
@@ -79,20 +81,22 @@ namespace app {
 			depth = depthSlider;
 		}
 
-		std::pair<bool, bool> res = eop::RunLuaConfig(luaConfigPathBuffer, importSpreadsheetFilePath, exportSpreadsheetFilePath, depth, fullRandom, entitiesRandom, identifierBuffer);
+		eop::RunLuaConfig(luaConfigPathBuffer, importSpreadsheetFilePath, exportSpreadsheetFilePath, depth, fullRandom, entitiesRandom, identifierBuffer);
 
-		if (!res.first) {
+		/*if (!res.first) {
 			outputLine1 = "Unable to Open File: " + importSpreadsheetFilePath;
-			EOP_LOG(outputLine1 << "\n");
+			EOP_LOG("%s\n", outputLine1.c_str());
 
-			runConfigFinished = true; return;
+			runConfigFinished = true;
+			return;
 		}
 		if (!res.second) {
 			outputLine1 = "Unable to Write File: " + exportSpreadsheetFilePath;
-			EOP_LOG(outputLine1 << "\n");
+			EOP_LOG("%s\n", outputLine1.c_str());
 
-			runConfigFinished = true; return;
-		}
+			runConfigFinished = true;
+			return;
+		}*/
 
 		outputLine1 = "Completed";
 		runConfigFinished = true;
@@ -207,6 +211,8 @@ namespace app {
 		CheckBufferChanges();
 	}
 
+	void Render();
+
 	void RenderGUI() {
 		ImGui::Begin("Entity Organisation Program", &showImGui, SetFullscreen());
 
@@ -312,11 +318,7 @@ namespace app {
 			EndFrame();
 
 			while (!runConfigFinished) {
-				StartFrame();
-
-				RenderGUI();
-
-				EndFrame();
+				Render();
 			}
 			runConfig.join();
 

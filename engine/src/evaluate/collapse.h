@@ -1,6 +1,9 @@
 #pragma once
 #include "core/core.h"
 
+#include <string>
+#include <vector>
+
 #include "eop_config.h"
 
 namespace eop {

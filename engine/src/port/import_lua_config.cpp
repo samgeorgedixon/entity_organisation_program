@@ -1,9 +1,15 @@
 #include "import_lua_config.h"
 
+#include <vector>
+#include <fstream>
+
 #include "OpenXLSX/OpenXLSX.hpp"
 
 #define SOL_ALL_SAFETIES_ON 1
 #include "sol/sol.hpp"
+
+#include "evaluate/eop_config.h"
+#include "evaluate/evaluate.h"
 
 #include "export_eop_config.h"
 
@@ -16,7 +22,7 @@ namespace eop {
 		file.open(filePath);
 
 		if (!file.good()) {
-			EOP_LOG("Unable to Open File: " << filePath);
+			EOP_LOG("Unable to Open File: %s", filePath.c_str());
 
 			file.close();
 			return {};
@@ -94,7 +100,7 @@ namespace eop {
 			doc.save();
 		}
 		catch (...) {
-			EOP_LOG("Unable to Write File : " << filePath);
+			EOP_LOG("Unable to Write File : %s", filePath.c_str());
 		}
 		doc.close();
 	}
@@ -250,8 +256,6 @@ namespace eop {
 		return resultEOPConfigTable;
 	}
 
-	bool m_importResult = true, m_exportResult = true;
-
 	std::string m_importSpreadsheetFilePath = "", m_exportSpreadsheetFilePath = "";
 	std::string m_identifiers = "";
 
@@ -262,7 +266,7 @@ namespace eop {
 		EOP_Config eop_config = lua_ConvertEOP_ConfigTable(eopConfigTable);
 
 		if (eop_config.district.rows == 0 && eop_config.district.cols == 0) {
-			m_importResult = false; return eopConfigTable;
+			return eopConfigTable;
 		}
 
 		EvaluateEOP_Config(eop_config, m_depthValue, m_fullRandomValue, m_entitiesRandomValue);
@@ -272,7 +276,7 @@ namespace eop {
 		return lua_AddEOP_ConfigResults(eop_config, eopConfigTable);
 	}
 
-	std::pair<bool, bool> RunLuaConfig(std::string luaConfigFilePath, std::string importSpreadsheetFilePath, std::string exportSpreadsheetFilePath, int depth, bool fullRandom, bool entitiesRandom, std::string identifiers) {
+	void RunLuaConfig(std::string luaConfigFilePath, std::string importSpreadsheetFilePath, std::string exportSpreadsheetFilePath, int depth, bool fullRandom, bool entitiesRandom, std::string identifiers) {
 		m_importSpreadsheetFilePath = importSpreadsheetFilePath;
 		m_exportSpreadsheetFilePath = exportSpreadsheetFilePath;
 
@@ -295,18 +299,12 @@ namespace eop {
 		lua["eop"]["ExportSheetTable"] = &ExportSheetTable;
 		lua["eop"]["EvaluateEOP_Config"] = &lua_EvaluateEOP_Config;
 
-		m_importResult = true;
-		m_exportResult = true;
-
 		try {
 			lua.safe_script_file(luaConfigFilePath);
 		}
 		catch (const sol::error& e) {
-			EOP_LOG(e.what() << "\n");
-			return {};
+			EOP_LOG("Error: %s\n", e.what());
 		}
-
-		return { m_importResult, m_exportResult };
 	}
 
 }

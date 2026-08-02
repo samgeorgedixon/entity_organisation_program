@@ -1,10 +1,9 @@
 #pragma once
 #include "core/core.h"
 
-#include "evaluate/eop_config.h"
-#include "evaluate/evaluate.h"
+#include <string>
 
-#include "port/export_eop_config.h"
+#include "evaluate/eop_config.h"
 
 namespace eop {
 

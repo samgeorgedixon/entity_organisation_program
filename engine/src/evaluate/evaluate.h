@@ -2,7 +2,6 @@
 #include "core/core.h"
 
 #include "eop_config.h"
-#include "collapse.h"
 
 /*
 

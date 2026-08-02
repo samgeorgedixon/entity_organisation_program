@@ -1,5 +1,8 @@
 #include "export_eop_config.h"
 
+#include <fstream>
+#include <sstream>
+
 #include "OpenXLSX/OpenXLSX.hpp"
 
 namespace eop {
@@ -16,7 +19,7 @@ namespace eop {
 			token = Trim(token);
 
 			for (int i = 0; i < eopConfig.entities.identifiers.size(); i++) {
-				if (Low(eopConfig.entities.identifiers[i].name) == Low(token)) {
+				if (Lowercase(eopConfig.entities.identifiers[i].name) == Lowercase(token)) {
 					identifiersIndexes.push_back(i);
 				}
 			}
@@ -25,7 +28,7 @@ namespace eop {
 
 		if (identifiers != "" && j == 0) {
 			for (int i = 0; i < eopConfig.entities.identifiers.size(); i++) {
-				if (Low(eopConfig.entities.identifiers[i].name) == Low(token)) {
+				if (Lowercase(eopConfig.entities.identifiers[i].name) == Lowercase(token)) {
 					identifiersIndexes.push_back(i);
 				}
 			}
@@ -59,7 +62,7 @@ namespace eop {
 			}
 			else {
 				for (int k = 0; k < identifierIndexes.size(); k++) {
-					EOP_LOG(eopConfig.entities.entities[id].identifiersValues[identifierIndexes[k]].value);
+					EOP_LOG("%s", eopConfig.entities.entities[id].identifiersValues[identifierIndexes[k]].value.c_str());
 					if (k < identifierIndexes.size() - 1) {
 						EOP_LOG(", ");
 					}
@@ -204,7 +207,7 @@ namespace eop {
 		try {
 			doc.save();
 		} catch (...) {
-			EOP_LOG("Unable to Write File : " << filePath);
+			EOP_LOG("Unable to Write File : %s", filePath.c_str());
 			return 0;
 		}
 		doc.close();
